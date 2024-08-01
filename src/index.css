@@ -1,0 +1,181 @@
+
+:root {
+  /* ******************************************** */
+
+  /* ********    Light Mode    ********** */
+  
+  --sidebarBackground: #fff;
+  --sidebarActiveColor: #F6F6F6;
+  --sidebarBorderColor: #D9D9D9;
+  --dashboardBg: #F6F8FC;
+  --sidebarGreyText: #5C5E64;
+  --searchGreyText: #828282;
+  --cardsGreyText: #676767;
+  --cardsBlueText: #2C6DB5;
+  --cardsBgBlueColor: #E1EBF5;
+  --tableAlternateBg : #F5F7FD;
+  --textInactive: #FC2222;
+  --textActive: #22C55D;
+  --tableTextGrey: #929292;
+  --addNewUserButton: #DDE7F3;
+  --greyText2Button: #ADA7A7;
+  --blueBggSettings: #F5F8FC;
+  --formControlBorder: #E7E7E7;
+  --orangeWarnText: #EF9644;
+  --publishBtn: #4F7BD1;
+  --greyText3Color: #7A7C7E;
+  --confirmedBtnBg: #CBE5D4;
+  --confirmedBtnText: #00CC08;
+  --pendingBtnBg: #FEF8F2;
+  --pendingBtnText: #E67C00;
+  --expiredBtnBg: #F3E2E6;
+  --expiredBtnText: #EF4444;
+  --createdBtnBg: #DCE6F3;
+  --createdBtnText: #2C6DB5;
+  --unconfirmedBtnBg: #D8E4E7;
+  --unconfirmedBtnText: #006351;
+  --approved2BtnText: #17A34A;
+  --approved2BtnBg: #ECF7F6;
+  --assignedBtnText: #5C5E64;
+  --assignedBtnBg: #EBECEC;
+  --confirmPaymentBtnText: #fff;
+  --confirmPaymentBtnBg: #00CC08;
+  --formControlLoginTextColor : #A6A5A5;
+  --formControlTextColor : #707070;
+  --loginGreyTextColor : #8392AB;
+  --greyText3: #808080;
+  --profileCardsBg:#DEE5F2;
+
+/* ********    Dark Mode    ********** */
+
+  /* --sidebarBackground_dark: #1E1E1E;
+  --sidebarActiveColor_dark: #333333;
+  --sidebarBorderColor_dark: #444444;
+  --dashboardBg_dark: #121212;
+  --sidebarGreyText_dark: #B0B0B0;
+  --searchGreyText_dark: #A8A8A8;
+  --cardsGreyText_dark: #C0C0C0;
+  --cardsBlueText_dark: #82B1FF;
+  --cardsBgBlueColor_dark: #2A3B4F; */
+
+
+  --font12 : 12px;
+  --font14 : 14px;
+  --font16 : 16px;
+  --font18 : 18px;
+  --font24 : 24px;
+  --font28 : 28px;
+  --font32 : 32px;
+  --font54 : 54px;
+
+  --lineHeight21 : 21px;
+  --lineHeight24 : 24px;
+
+  --borderRadius4 : 4px;
+  --borderRadius8 : 8px;
+  --borderRadius10 : 10px;
+  --borderRadius12 : 12px;
+  --borderRadius24 : 24px;
+  --borderRadius32 : 32px;
+
+  --fontWeight700 : 700px;
+  --fontWeight600 : 600px;
+  --fontWeight900 : 900px;
+}
+
+body {
+  font-family: 'Helvetica Neue', sans-serif !important;
+}
+
+.formControlTextColor{
+  color: var(--formControlTextColor);
+}
+
+p{
+  margin: 0% !important;
+}
+
+.font12{
+  font-size: var(--font12);
+}
+
+.font14{
+  font-size: var(--font14);
+}
+
+.font16{
+  font-size: var(--font16);
+}
+
+.font18{
+  font-size: var(--font18);
+}
+
+.font24{
+  font-size: var(--font24);
+}
+
+.font28{
+  font-size: var(--font28);
+}
+
+.font32{
+  font-size: var(--font32);
+}
+
+.font54{
+  font-size: var(--font54);
+}
+
+.lineHeight21{
+  line-height: var(--lineHeight21) !important;
+}
+
+.lineHeight24{
+  line-height: var(--lineHeight24) !important;
+}
+
+.borderRadius4{
+  border-radius: var(--borderRadius4) !important;
+}
+
+.borderRadius8{
+  border-radius: var(--borderRadius8) !important;
+}
+
+.borderRadius10{
+  border-radius: var(--borderRadius10) !important;
+}
+
+.borderRadius12{
+  border-radius: var(--borderRadius12) !important;
+}
+
+.borderRadius24{
+  border-radius: var(--borderRadius24) !important;
+}
+
+.borderRadius32{
+  border-radius: var(--borderRadius32) !important;
+}
+
+.fontWeight600{
+  font-weight: var(--fontWeight600) !important;
+}
+
+.fontWeight700{
+  font-weight: var(--fontWeight700) !important;
+}
+
+.fontWeight900{
+  font-weight: var(--fontWeight900) !important;
+}
+
+.btn{
+  border: none !important;
+}
+
+/* table striped alternate color */
+/* .modal-backdrop {
+  z-index: -1;
+} */
