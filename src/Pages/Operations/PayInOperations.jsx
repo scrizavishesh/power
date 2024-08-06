@@ -7,6 +7,11 @@ import React, { useState, useEffect } from 'react';
 import { DownloadOrders, getAgents, getAllOrders } from '../../Utils/Apis';
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/light.css";
+import { Link } from 'react-router-dom';
+import HashLoader from '../../Dashboard/Loader';
+import ResponsivePagination from 'react-responsive-pagination';
+import 'react-responsive-pagination/themes/classic.css';
+import { useDispatch, useSelector } from 'react-redux';
 // import { Icon } from '@iconify/react';
 
 
@@ -84,6 +89,13 @@ const Container = styled.div`
     border-radius: var(--borderRadius32) !important;
   }
 
+
+  .addNewUserBtn, .addNewUserBtn:active, .addNewUserBtn:focus{
+    padding: 1% 2% 1% 2%;
+    color: var(--cardsBlueText);
+    background-color: var(--addNewUserButton);
+  }
+
   .dropdown-toggle::after{
     display: none !important;
   }
@@ -116,12 +128,18 @@ const PayInOperations = () => {
 
   const { toggleSidebar } = useMainContext();
 
+  const dispatch = useDispatch();
+  const { users, status, error } = useSelector(state => state.users);
+  const [profileDetails, setprofileDetails] = useState(users[0]);
+
   const todayDate = format(new Date(), 'yyyy-MM-dd');
-  const [updateData, setupdateData] = useState(false)
+  const [updateData, setupdateData] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
 
   const [orderCreate, setCreateOrder] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
   const [searchTerm, setSearchTerm] = useState('');
   const [showAgents, setShowAgents] = useState([]);
   const [currentpage, setcurrentpage] = useState('');
@@ -182,11 +200,13 @@ const PayInOperations = () => {
 
   const fetchData = async () => {
     try {
+      setShowLoader(true);
       const orderResponse = await getAllOrders(searchTerm, currentPage, activeButton, startDate, endDate, agent);
       console.log(orderResponse)
       if (orderResponse?.status === 200 && orderResponse?.data?.results)
-        setCreateOrder(orderResponse?.data.results);
-      setTotalItems(orderResponse?.data?.count);
+        setShowLoader(false);
+      setCreateOrder(orderResponse?.data.results);
+      setTotalPages(Math.ceil(orderResponse.data.count / itemsPerPage));
     } catch (err) {
       console.log(err);
     }
@@ -221,11 +241,16 @@ const PayInOperations = () => {
 
   return (
     <Container>
+      {
+        showLoader && (
+          <HashLoader />
+        )
+      }
       <div className="container-fluid p-lg-5 p-3">
         <Icon className='toggleBars mb-3' icon="fa6-solid:bars" width="1.5em" height="1.5em" style={{ color: '#000' }} onClick={toggleSidebar} />
         <div className="row sticky-top">
           <div className="col-md-7 col-sm-12 order-md-1 order-sm-2">
-            <p className='greyText font14 fontWeight700'>Hi Shalu,</p>
+            <p className='greyText font14 fontWeight700'>Hi {profileDetails?.username},</p>
             <p className='font32 fontWeight700'>Welcome to PayIn Operations</p>
           </div>
           <div className="col-md-5 col-sm-12 order-md-2 order-sm-1 align-self-center">
@@ -260,6 +285,7 @@ const PayInOperations = () => {
                 </li>
               </ul>
             </div>
+            <Link className='btn borderRadius10 addNewUserBtn me-3 align-self-center' to='/createPayInOrder'>+ Create Order</Link>
             <div className="dropdown">
               <button style={{ borderColor: "#0000" }} type="button" data-bs-toggle="dropdown" aria-expanded="false" className='bg-white align-self-center p-2 borderRadius10 me-2 dropdown-toggle'>
                 <Icon icon="ion:filter" width="1.4em" height="1.4em" style={{ color: '#2C6DB5' }} />
@@ -270,13 +296,14 @@ const PayInOperations = () => {
                 <li><a className="dropdown-item" onClick={() => handleButtonClick("yesterday")}>Yesterday</a></li>
               </ul>
             </div>
+
             {/* <div class="input-group mb-3">
               <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2" />
                 <span class="input-group-text" id="basic-addon2">@example.com</span>
             </div> */}
             <div className="date-picker-container">
               <Flatpickr
-                class="form-control"
+                class="form-control form-control-lg"
                 style={
                   activeButton === "custom"
                     ? {
@@ -315,81 +342,89 @@ const PayInOperations = () => {
 
           </div>
         </div>
-        <div className="row overflow-scroll">
-          <div className="tab-content" id="pills-tabContent">
-            <div className="tab-pane fade show active" id="pills-all" role="tabpanel" aria-labelledby="pills-all-tab" tabIndex="0">
-              <table className="table table-responsive">
-                <thead>
-                  <tr>
-                    <td className='font16 lineHeight21'>Reciept Number</td>
-                    <td className='font16 lineHeight21'>Client Name</td>
-                    <td className='font16 lineHeight21'>Order ID</td>
-                    <td className='font16 lineHeight21'>Created on</td>
-                    <td className='font16 lineHeight21'>UTR Number</td>
-                    <td className='font16 lineHeight21'>UTR Slip</td>
-                    <td className='font16 lineHeight21'>Assignee UPI</td>
-                    <td className='font16 lineHeight21'>Amount</td>
-                    <td className='font16 lineHeight21'>Action</td>
-                  </tr>
-                  <span></span>
-                </thead>
-                <tbody>
-                  {orderCreate?.length !== 0 ? (
-                    orderCreate?.map((provider) => {
-                      return (
+        <div className="container-fluid">
+          <div className="row overflow-auto">
+            <div className="tab-content" id="pills-tabContent">
+              <div className="tab-pane fade show active" id="pills-all" role="tabpanel" aria-labelledby="pills-all-tab" tabIndex="0">
+                <div className="table-responsive">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <td className='font16 lineHeight21'>Reciept Number</td>
+                        <td className='font16 lineHeight21'>Client Name</td>
+                        <td className='font16 lineHeight21'>Order ID</td>
+                        <td className='font16 lineHeight21'>Created on</td>
+                        <td className='font16 lineHeight21'>UTR Number</td>
+                        <td className='font16 lineHeight21'>UTR Slip</td>
+                        <td className='font16 lineHeight21'>Assignee UPI</td>
+                        <td className='font16 lineHeight21'>Amount</td>
+                        <td className='font16 lineHeight21'>Action</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orderCreate?.length !== 0 ? (
+                        orderCreate?.map((provider) => {
+                          return (
+                            <tr key={provider?.id}>
+                              <td className='font14 align-middle lineHeight24'>{provider?.receipt}</td>
+                              <td className='font14 align-middle lineHeight24'>{provider?.client_name}</td>
+                              <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.order_id}</td>
+                              <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.created_at?.slice(0, 10)}</td>
+                              <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.utr}</td>
+                              <td className='font14 align-middle lineHeight24'>
+                                <Icon icon="pepicons-pencil:file" width="1.5em" height="1.5em" style={{ color: '#2C6DB5' }} />
+                              </td>
+                              <td className='font14 align-middle lineHeight24 textBlue'>{provider?.upi}</td>
+                              <td className='font14 align-middle lineHeight24 text text-center'>
+                                <button className={`btn ${provider?.approval_status === 'APPROVED' ? 'confirmedButton' : (provider?.approval_status === 'PENDING' ? 'pendingButton' : (provider?.approval_status === 'CREATED' ? 'createdButton' : 'expiredButton'))} borderRadius4 me-3`}>{provider?.approval_status}</button>
+                                <p className=' font18 fontWeight700 mt-1'>{provider?.payment_amount}</p>
+                              </td>
+                              <td className='font14 align-middle lineHeight24'>
+                                <div className="d-flex">
+                                  <button onClick={() => handleOrder(provider?.id)} className='btn approveButton me-3 align-self-center' type='button'>Approve</button>
+                                  <div className="dropdown align-self-center">
+                                    <span className="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    </span>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      ) : (
                         <tr>
-                          <td className='font14 align-middle lineHeight24'>{provider?.receipt}</td>
-                          <td className='font14 align-middle lineHeight24'>{provider?.client_name}</td>
-                          <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.order_id}</td>
-                          <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.created_at?.slice(0, 10)}</td>
-                          <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.utr}</td>
-                          <td className='font14 align-middle lineHeight24'>
-                            <Icon icon="pepicons-pencil:file" width="1.5em" height="1.5em" style={{ color: '#2C6DB5' }} />
-                          </td>
-                          <td className='font14 align-middle lineHeight24 textBlue'>{provider?.upi}</td>
-                          <td className='font14 align-middle lineHeight24  text text-center'>
-                            <button className={`btn ${provider?.approval_status === 'APPROVED' ? 'confirmedButton' : (provider?.approval_status === 'PENDING' ? 'pendingButton' : (provider?.approval_status === 'CREATED' ? 'createdButton' : 'expiredButton'))} borderRadius4 me-3`}>{provider?.approval_status}</button>
-                            <p className=' font18 fontWeight700 mt-1'>{provider?.payment_amount}</p>
-                          </td>
-                          <td className='font14 align-middle lineHeight24'>
-                            <div className="d-flex">
-                              <button onClick={() => handleOrder(provider?.id)} className='btn approveButton me-3 align-self-center' type='button'>Approve</button>
-                              <div className="dropdown align-self-center">
-                                <span className="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                </span>
-                              </div>
-                            </div>
+                          <td style={{ textAlign: "center" }} colSpan={9}>
+                            No data found
                           </td>
                         </tr>
-
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td style={{ textAlign: "center" }} colSpan={6}>
-                        No data found
-                      </td>
-                    </tr>
-                  )
-                  }
-                </tbody>
-              </table>
-            </div>
-            <div className="tab-pane fade" id="pills-pending" role="tabpanel" aria-labelledby="pills-pending-tab" tabIndex="0">
-            </div>
-            <div className="tab-pane fade" id="pills-approved" role="tabpanel" aria-labelledby="pills-approved-tab" tabIndex="0">
-            </div>
-            <div className="tab-pane fade" id="pills-expired" role="tabpanel" aria-labelledby="pills-expired-tab" tabIndex="0">
-            </div>
-            <div className="tab-pane fade" id="pills-confirmed" role="tabpanel" aria-labelledby="pills-confirmed-tab" tabIndex="0">
-            </div>
-            <div className="tab-pane fade" id="pills-unconfirmed" role="tabpanel" aria-labelledby="pills-unconfirmed-tab" tabIndex="0">
-            </div>
-            <div className="tab-pane fade" id="pills-declined" role="tabpanel" aria-labelledby="pills-declined-tab" tabIndex="0">
-              <span className='text-danger font14'>No Data Found !!</span>
+                      )}
+                    </tbody>
+                  </table>
+                  
+                </div>
+                <ResponsivePagination
+                current={currentPage}
+                total={totalPages}
+                onPageChange={setCurrentPage}
+              />
+              </div>
+              <div className="tab-pane fade" id="pills-pending" role="tabpanel" aria-labelledby="pills-pending-tab" tabIndex="0">
+              </div>
+              <div className="tab-pane fade" id="pills-approved" role="tabpanel" aria-labelledby="pills-approved-tab" tabIndex="0">
+              </div>
+              <div className="tab-pane fade" id="pills-expired" role="tabpanel" aria-labelledby="pills-expired-tab" tabIndex="0">
+              </div>
+              <div className="tab-pane fade" id="pills-confirmed" role="tabpanel" aria-labelledby="pills-confirmed-tab" tabIndex="0">
+              </div>
+              <div className="tab-pane fade" id="pills-unconfirmed" role="tabpanel" aria-labelledby="pills-unconfirmed-tab" tabIndex="0">
+              </div>
+              <div className="tab-pane fade" id="pills-declined" role="tabpanel" aria-labelledby="pills-declined-tab" tabIndex="0">
+                <span className='text-danger font14'>No Data Found !!</span>
+              </div>
             </div>
           </div>
         </div>
+
       </div>
 
       {/* Confirm Modal */}

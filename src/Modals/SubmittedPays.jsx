@@ -2,8 +2,8 @@ import { Icon } from '@iconify/react';
 import React, { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast';
 import styled from 'styled-components'
+import HashLoader from '../Dashboard/Loader';
 import { assignOrder, onlineUser } from '../Utils/Apis';
-
 const Container = styled.div`
 
     .table tbody tr {
@@ -40,15 +40,18 @@ const Container = styled.div`
 const SubmittedPays = ({ Ids, OrderId, Price, onData }) => {
 
     const [userOnine, setuserOnine] = useState();
+    const [showLoader, setShowLoader] = useState(false);
     const [userId, setuserId] = useState('')
 
     const fetchData = async () => {
         try {
+            setShowLoader(true);
             const orderResponse = await onlineUser(Ids);
             console.log(orderResponse, "Onlin euSers")
             if (orderResponse?.status === 200 && orderResponse?.data)
+            setShowLoader(false);
                 setuserOnine(orderResponse?.data);
-               onData(true);
+            onData(true);
         } catch (err) {
             console.log(err);
         }
@@ -87,10 +90,11 @@ const SubmittedPays = ({ Ids, OrderId, Price, onData }) => {
         formData.append("user_id", id);
         formData.append("order_id", OrderId);
         try {
+            setShowLoader(true);
             const response = await assignOrder(formData);
             console.log(response, "Asssign")
             if (response?.status === 200) {
-              
+                setShowLoader(false);
             }
         } catch (err) {
             console.log(err);
@@ -101,6 +105,11 @@ const SubmittedPays = ({ Ids, OrderId, Price, onData }) => {
 
     return (
         <Container>
+            {
+                showLoader && (
+                    <HashLoader />
+                )
+            }
             <div className="container-fluid">
                 <div className="row rowBlue borderRadius8top">
                     <p className='text-end'><Icon icon="mdi:cross-circle-outline" width="1.1em" height="1.1em" style={{ color: '#B5B5B5' }} data-bs-dismiss="modal" aria-label="Close" /></p>

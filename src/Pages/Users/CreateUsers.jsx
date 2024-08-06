@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { CreateUser } from '../../Utils/Apis';
+import HashLoader from '../../Dashboard/Loader';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Container = styled.div`
 
@@ -61,7 +63,12 @@ const Container = styled.div`
 
 const CreateUsers = () => {
 
+    const dispatch = useDispatch();
+    const { users, status, error } = useSelector(state => state.users);
+    const [profileDetail, setprofileDetail] = useState(users[0]);
+
     const { toggleSidebar } = useMainContext();
+    const [showLoader, setShowLoader] = useState(false);
 
     const [username, setUsername] = useState(""); // Corrected state variable name
     const [userNameValidError, setUserNameValidError] = useState(false);
@@ -410,9 +417,11 @@ const CreateUsers = () => {
             formData.append("upi_id", upi);
 
             try {
+                setShowLoader(true);
                 const response = await CreateUser(formData);
                 console.log(response, "Create User")
                 if (response.status === 201) {
+                    setShowLoader(false);
                     setEmail("");
                     setUsername("");
                     setPassword("");
@@ -442,12 +451,16 @@ const CreateUsers = () => {
 
 
     return (
-        <Container>
+        <Container>{
+            showLoader && (
+                <HashLoader />
+            )
+        }
             <div className="container-fluid p-lg-5 p-3">
                 <Icon className='toggleBars mb-3' icon="fa6-solid:bars" width="1.5em" height="1.5em" style={{ color: '#000' }} onClick={toggleSidebar} />
                 <div className="row">
                     <div className="col-md-7 col-sm-12 order-md-1 order-sm-2">
-                        <p className='greyText font14 fontWeight700'>Hi Shalu,</p>
+                        <p className='greyText font14 fontWeight700'>Hi {profileDetail?.username},</p>
                         <p className='font32 fontWeight700'>Welcome to Create Users</p>
                     </div>
                     <div className="col-md-5 col-sm-12 order-md-2 order-sm-1 align-self-center">
@@ -471,7 +484,7 @@ const CreateUsers = () => {
                             <div className="blueBggg mt-3 p-3 borderRadius24">
                                 <form class="row g-3">
                                     <div class="col-md-6">
-                                        <label  class="form-label labelGreyText font16">Name</label>
+                                        <label class="form-label labelGreyText font16">Name</label>
                                         <input type="text" class="form-control font14" value={name}
                                             onChange={(e) => handleName(e.target.value)}
                                             placeholder="Enter Name" />
@@ -487,7 +500,7 @@ const CreateUsers = () => {
                                         )}
                                     </div>
                                     <div class="col-md-6">
-                                        <label  class="form-label labelGreyText font16">Username</label>
+                                        <label class="form-label labelGreyText font16">Username</label>
                                         <input onChange={(e) => handleUserName(e.target.value)} value={username} type="text" class="form-control font14" placeholder='Enter your usename' />
                                         {userNameIsRequiredError && (
                                             <div className='text-start mt-2' style={{ color: "red", fontSize: "x-small" }}>
@@ -501,7 +514,7 @@ const CreateUsers = () => {
                                         )}
                                     </div>
                                     <div class="col-md-12">
-                                        <label  class="form-label labelGreyText font16">Email ID</label>
+                                        <label class="form-label labelGreyText font16">Email ID</label>
                                         <input type="text" class="form-control font14" placeholder='Enter your email' value={email} onChange={(e) => handleEmail(e.target.value)} />
                                         {emailIsRequiredError && (
                                             <div className='text-start mt-2' style={{ color: "red", fontSize: "x-small" }}>
@@ -515,7 +528,7 @@ const CreateUsers = () => {
                                         )}
                                     </div>
                                     <div class="col-md-12">
-                                        <label  class="form-label labelGreyText font16">Password</label>
+                                        <label class="form-label labelGreyText font16">Password</label>
                                         <input class="form-control font14" placeholder='**********' onChange={(e) => handleNewPass(e.target.value)} value={password} type={!isShowPassword ? "password" : "text"} />
                                         {passwordValidError && (
                                             <div className='text-start mt-2' style={{ color: "red", fontSize: "x-small" }} >
@@ -588,7 +601,7 @@ const CreateUsers = () => {
                             <div className="blueBggg mt-3 p-3 borderRadius24">
                                 <form class="row g-3">
                                     <div class="col-md-6">
-                                        <label  class="form-label labelGreyText font16">Total PayIn Limit</label>
+                                        <label class="form-label labelGreyText font16">Total PayIn Limit</label>
                                         <input type="text" class="form-control font14" value={payinLimit} onChange={(e) => handlePayinLimit(e.target.value)} placeholder="Enter PayIn Limit" />
                                         {payinLimitIsRequiredError && (
                                             <div className='text-start mt-2' style={{ color: "red", fontSize: "x-small" }}>
@@ -597,7 +610,7 @@ const CreateUsers = () => {
                                         )}
                                     </div>
                                     <div class="col-md-6">
-                                        <label  class="form-label labelGreyText font16">Total PayOut Limit</label>
+                                        <label class="form-label labelGreyText font16">Total PayOut Limit</label>
                                         <input type="text" class="form-control font14" value={payoutLimit}
                                             onChange={(e) => handlePayoutLimit(e.target.value)}
                                             placeholder="Enter Payout Limit"
@@ -609,7 +622,7 @@ const CreateUsers = () => {
                                         )}
                                     </div>
                                     <div class="col-md-6">
-                                        <label  class="form-label labelGreyText font16">Min. Amount Limit</label>
+                                        <label class="form-label labelGreyText font16">Min. Amount Limit</label>
                                         <input type="text" class="form-control font14"
                                             value={minAmount}
                                             onChange={(e) => handleMinAmount(e.target.value)}
@@ -622,7 +635,7 @@ const CreateUsers = () => {
                                         )}
                                     </div>
                                     <div class="col-md-6">
-                                        <label  class="form-label labelGreyText font16">Max. Amount Limit</label>
+                                        <label class="form-label labelGreyText font16">Max. Amount Limit</label>
                                         <input type="text" class="form-control font14"
                                             value={maxAmount}
                                             onChange={(e) => handleMaxAmount(e.target.value)}
@@ -635,7 +648,7 @@ const CreateUsers = () => {
                                         )}
                                     </div>
                                     <div class="col-md-12">
-                                        <label  class="form-label labelGreyText font16">Comission %</label>
+                                        <label class="form-label labelGreyText font16">Comission %</label>
                                         <input type="text" class="form-control font14" value={commission}
                                             onChange={(e) => handleCommission(e.target.value)}
                                             placeholder="Enter Commission"
@@ -657,7 +670,7 @@ const CreateUsers = () => {
                             <div className="blueBggg mt-3 p-3 borderRadius24">
                                 <form class="row g-3">
                                     <div class="col-md-12">
-                                        <label  class="form-label labelGreyText font16">UPI ID</label>
+                                        <label class="form-label labelGreyText font16">UPI ID</label>
                                         <input type="text" class="form-control font14"
                                             value={upi}
                                             onChange={(e) => handleUPI(e.target.value)}
@@ -675,7 +688,7 @@ const CreateUsers = () => {
                                         )}
                                     </div>
                                     <div class="col-md-6">
-                                        <label  class="form-label labelGreyText font16">Bank Name</label>
+                                        <label class="form-label labelGreyText font16">Bank Name</label>
                                         {/* <input type="text" class="form-control font14" value='Elena'/> */}
                                         <span className='btn borderRadius10 bg-white d-flex'>
                                             <select value={bankName}
@@ -695,7 +708,7 @@ const CreateUsers = () => {
                                         </span>
                                     </div>
                                     <div class="col-md-6">
-                                        <label  class="form-label labelGreyText font16">Branch Name</label>
+                                        <label class="form-label labelGreyText font16">Branch Name</label>
                                         <input type="text" class="form-control font14"
                                             value={branchName}
                                             onChange={(e) => handleBranchName(e.target.value)}
@@ -708,7 +721,7 @@ const CreateUsers = () => {
                                         )}
                                     </div>
                                     <div class="col-md-12">
-                                        <label  class="form-label labelGreyText font16">Account Number</label>
+                                        <label class="form-label labelGreyText font16">Account Number</label>
                                         <input type="text" class="form-control font14"
                                             value={bankAccountNumber}
                                             onChange={(e) => handleBankAccountNumber(e.target.value)}
@@ -722,7 +735,7 @@ const CreateUsers = () => {
                                         )}
                                     </div>
                                     <div class="col-md-12">
-                                        <label  class="form-label labelGreyText font16">IFSC</label>
+                                        <label class="form-label labelGreyText font16">IFSC</label>
                                         <input type="text" class="form-control font14"
                                             value={ifsc}
                                             onChange={(e) => handleIFSC(e.target.value)}
@@ -735,7 +748,7 @@ const CreateUsers = () => {
                                         )}
                                     </div>
                                     <div class="col-md-12">
-                                        <label  class="form-label labelGreyText font16">Account Holder Name</label>
+                                        <label class="form-label labelGreyText font16">Account Holder Name</label>
                                         <input type="text" class="form-control font14"
                                             value={accountHolderName}
                                             onChange={(e) => handleAccountHolderName(e.target.value)}

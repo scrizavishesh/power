@@ -13,6 +13,8 @@ import KBProfilePage from '../Pages/Profile/KBProfilePage';
 import PayInOperation from '../OperationsForUser/PayInOperations';
 import PayOutOperation from '../OperationsForUser/PayOutOperations';
 import PayInOperations from '../Pages/Operations/PayInOperations';
+import CreatePayInOrder from '../Pages/Operations/CreatePayInOrder';
+import CreatePayoutOrder from '../Pages/Operations/CreatePayoutOrder';
 
 const Main = ({ lightMode, setLightMode }) => {
   return (
@@ -22,8 +24,10 @@ const Main = ({ lightMode, setLightMode }) => {
         <Route path='/users' element={<Users />} />
         <Route path='/createUser' element={<CreateUsers />} />
         <Route path='/payInOperations' element={<PayInOperations />} />
+        <Route path='/createPayInOrder' element={<CreatePayInOrder />} />
         <Route path='/payInOperation/:id' element={<PayInOperation />} />
         <Route path='/payOutOperations' element={<PayOutOperations />} />
+        <Route path='/createPayOutOrder' element={<CreatePayoutOrder />} />
         <Route path='/payOutOperation/:id' element={<PayOutOperation />} />
         <Route path='/manageUTR' element={<MangeUTR />} />
         <Route path='/settings' element={<Settings />} />

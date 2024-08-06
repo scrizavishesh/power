@@ -8,6 +8,11 @@ import { getAllAayoutRequests } from '../../Utils/Apis';
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/light.css";
 import AssignedOrder from '../../Modals/AssignedOrder';
+import { Link } from 'react-router-dom';
+import HashLoader from '../../Dashboard/Loader';
+import ResponsivePagination from 'react-responsive-pagination';
+import 'react-responsive-pagination/themes/classic.css';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Container = styled.div`
 
@@ -27,6 +32,12 @@ const Container = styled.div`
 
   .textBlue{
     color: var(--cardsBlueText) !important;
+  }
+
+  .addNewUserBtn, .addNewUserBtn:active, .addNewUserBtn:focus{
+    padding: 1% 2% 1% 2%;
+    color: var(--cardsBlueText);
+    background-color: var(--addNewUserButton);
   }
 
   .submittedButton, .submittedButton:active, .submittedButton:focus{
@@ -85,11 +96,17 @@ const PayOutOperations = () => {
 
   const todayDate = format(new Date(), 'dd/MM/yyyy');
 
-  const [updateData, setupdateData] = useState(false)
+  const dispatch = useDispatch();
+  const { users, status, error } = useSelector(state => state.users);
+  const [profileDetails, setprofileDetails] = useState(users[0]);
+
+  const [updateData, setupdateData] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
 
   const [orderCreate, setCreateOrder] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAgents, setShowAgents] = useState([]);
   const [currentpage, setcurrentpage] = useState('');
@@ -125,11 +142,13 @@ const PayOutOperations = () => {
 
   const fetchData = async () => {
     try {
+      setShowLoader(true);
       const orderResponse = await getAllAayoutRequests(searchTerm, currentPage, activeButton, startDate, endDate, agent);
       console.log(orderResponse, "Payout ")
       if (orderResponse?.status === 200 && orderResponse?.data?.results)
-        setCreateOrder(orderResponse?.data.results);
-      setTotalItems(orderResponse?.data?.count);
+        setShowLoader(false);
+      setCreateOrder(orderResponse?.data.results);
+      setTotalPages(Math.ceil(orderResponse.data.count / itemsPerPage));
     } catch (err) {
       console.log(err);
     }
@@ -170,11 +189,16 @@ const PayOutOperations = () => {
 
   return (
     <Container>
+      {
+        showLoader && (
+          <HashLoader />
+        )
+      }
       <div className="container-fluid p-lg-5 p-3">
         <Icon className='toggleBars mb-3' icon="fa6-solid:bars" width="1.5em" height="1.5em" style={{ color: '#000' }} onClick={toggleSidebar} />
         <div className="row sticky-top">
           <div className="col-md-7 col-sm-12 order-md-1 order-sm-2">
-            <p className='greyText font14 fontWeight700'>Hi Shalu,</p>
+            <p className='greyText font14 fontWeight700'>Hi {profileDetails?.username},</p>
             <p className='font32 fontWeight700'>Welcome to PayOut Operations</p>
           </div>
           <div className="col-md-5 col-sm-12 order-md-2 order-sm-1 align-self-center">
@@ -205,16 +229,14 @@ const PayOutOperations = () => {
                   <button onClick={() => handleInputChange("PENDING")} className={`nav-link ${searchTerm === "PENDING" ? "active" : ""} font14`} type="button">Pending</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button onClick={() => handleInputChange("APPROVED")} className={`nav-link ${searchTerm === "APPROVED" ? "active" : ""} font14`} type="button">Approved</button>
+                  <button onClick={() => handleInputChange("SUBMITTED")} className={`nav-link ${searchTerm === "SUBMITTED" ? "active" : ""} font14`} type="button">Approved</button>
                 </li>
                 <li className="nav-item" role="presentation">
                   <button onClick={() => handleInputChange("ASSIGNED")} className={`nav-link ${searchTerm === "ASSIGNED" ? "active" : ""} font14`} type="button">Assigned</button>
                 </li>
-                <li className="nav-item" role="presentation">
-                  <button onClick={() => handleInputChange("EXPIRED")} className={`nav-link ${searchTerm === "EXPIRED" ? "active" : ""} font14`} type="button" >Declined</button>
-                </li>
               </ul>
             </div>
+            <Link className='btn borderRadius10 addNewUserBtn me-3 align-self-center' to='/createPayOutOrder'>+ Create Order</Link>
             <div className="dropdown">
               <button style={{ borderColor: "#0000" }} type="button" data-bs-toggle="dropdown" aria-expanded="false" className='bg-white align-self-center p-2 borderRadius10 me-2 dropdown-toggle'>
                 <Icon icon="ion:filter" width="1.4em" height="1.4em" style={{ color: '#2C6DB5' }} />
@@ -294,9 +316,9 @@ const PayOutOperations = () => {
                               <button
                                 type="button"
                                 className={`btn ${provider?.approval_status === "SUBMITTED" ? 'confirmedButton' :
-                                    provider?.approval_status === 'ASSIGNED' ? 'assigneddButton' :
-                                      provider?.approval_status === 'CREATED' ? 'submittedButton' :
-                                        'rejectedButton'
+                                  provider?.approval_status === 'ASSIGNED' ? 'assigneddButton' :
+                                    provider?.approval_status === 'CREATED' ? 'submittedButton' :
+                                      'rejectedButton'
                                   } borderRadius4 font12 text-center`}
                                 onClick={() => provider?.approval_status === 'ASSIGNED' ? handleAssignedOrder(provider?.order_id, provider?.payment_amount) : null}
                               >
@@ -326,6 +348,11 @@ const PayOutOperations = () => {
               )
               }
             </div>
+            <ResponsivePagination
+              current={currentPage}
+              total={totalPages}
+              onPageChange={setCurrentPage}
+            />
             <div className="tab-pane fade" id="pills-newUnassigned" role="tabpanel" aria-labelledby="pills-newUnassigned-tab" tabIndex="0">
             </div>
             <div className="tab-pane fade" id="pills-pending" role="tabpanel" aria-labelledby="pills-pending-tab" tabIndex="0">
@@ -345,7 +372,7 @@ const PayOutOperations = () => {
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-body">
-              <AssignedOrder OrderId={OrderId} Price={Price} onData={handleData}/>
+              <AssignedOrder OrderId={OrderId} Price={Price} onData={handleData} />
             </div>
           </div>
         </div>

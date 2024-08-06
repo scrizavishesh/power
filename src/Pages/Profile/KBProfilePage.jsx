@@ -6,6 +6,8 @@ import { format } from 'date-fns';
 import { getPerticualrProfile, updateUserbyId } from '../../Utils/Apis';
 import { Link, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import HashLoader from '../../Dashboard/Loader';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Container = styled.div`
 
@@ -122,8 +124,12 @@ const Container = styled.div`
 const KBProfilePage = () => {
 
     const { id } = useParams();
+    const dispatch = useDispatch();
+    const { users, status, error } = useSelector(state => state.users);
+    const [profileDetail, setprofileDetail] = useState(users[0]);
 
     const { toggleSidebar } = useMainContext();
+    const [showLoader, setShowLoader] = useState(false);
 
     const todayDate = format(new Date(), 'dd/MM/yyyy');
 
@@ -141,7 +147,7 @@ const KBProfilePage = () => {
     const [emailError, setEmailError] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
     const [phoneNumberError, setPhoneNumberError] = useState(false);
-    const [status, setStatus] = useState("");
+    const [statu, setStatus] = useState("");
     const [upi, setUpi] = useState("");
     const [upiError, setUpiError] = useState(false);
     const [ifsc, setIfsc] = useState("");
@@ -325,7 +331,7 @@ const KBProfilePage = () => {
         formData.append("name", name);
         formData.append("email", email);
         formData.append("phoneNumber", phoneNumber);
-        formData.append("is_checked_in", status);
+        formData.append("is_checked_in", statu);
         formData.append("upi_id", upi);
         formData.append("IFSC", ifsc);
         formData.append("bank_name", bankName);
@@ -334,9 +340,11 @@ const KBProfilePage = () => {
         formData.append("payout_limit", payOutLimit);
 
         try {
+            setShowLoader(true);
             const response = await updateUserbyId(id, formData);
             console.log(response, "user update successfully")
             if (response.status === 200) {
+                setShowLoader(false);
                 toast.success("user update successfully");
                 userSuccess();
                 setchangeState(false);
@@ -351,9 +359,11 @@ const KBProfilePage = () => {
 
     const userSuccess = async () => {
         try {
+            setShowLoader(true);
             const response = await getPerticualrProfile(id)
             console.log(response, "Perticular user");
             if (response?.status === 200) {
+                setShowLoader(false);
                 setprofileDetails(response?.data)
                 setName(response?.data?.name);
                 setUsername(response?.data?.username);
@@ -382,11 +392,16 @@ const KBProfilePage = () => {
 
     return (
         <Container>
+            {
+                showLoader && (
+                    <HashLoader />
+                )
+            }
             <div className="container-fluid p-lg-5 p-3">
                 <Icon className='toggleBars mb-3' icon="fa6-solid:bars" width="1.5em" height="1.5em" style={{ color: '#000' }} onClick={toggleSidebar} />
                 <div className="row">
                     <div className="col-md-7 col-sm-12 order-md-1 order-sm-2">
-                        <p className='greyText font14 fontWeight700'>Hi Shalu,</p>
+                        <p className='greyText font14 fontWeight700'>Hi {profileDetails?.username},</p>
                         <p className='font32 fontWeight700'>Welcome to KB Payout’s Profile</p>
                     </div>
                     <div className="col-md-5 col-sm-12 order-md-2 order-sm-1 align-self-center">
@@ -553,7 +568,7 @@ const KBProfilePage = () => {
                                     </div>
                                     <div className="col-md-6">
                                         <label htmlFor="statusSelect" className="form-label labelGreyText font14 fw-lighter">Select Role</label>
-                                        <select id="statusSelect" className="form-control font12" value={status} onChange={handleStatus} disabled={!changeState ? true : false}>
+                                        <select id="statusSelect" className="form-control font12" value={statu} onChange={handleStatus} disabled={!changeState ? true : false}>
                                             <option value='' disabled>-- Choose --</option>
                                             <option value={true}>Active</option>
                                             <option value={false}>Inactive</option>
@@ -579,7 +594,7 @@ const KBProfilePage = () => {
                                         :
                                         <>
                                             <div>
-                                                <span type='button'  onClick={register} className='borderBlue borderRadius32 p-2 ps-4 pe-4 textttBlue'>
+                                                <span type='button' onClick={register} className='borderBlue borderRadius32 p-2 ps-4 pe-4 textttBlue'>
                                                     Submit
                                                 </span>
                                                 <span onClick={() => setchangeState(false)} type='button' className='borderBlue borderRadius32 p-2 ps-4 pe-4 textttBlue ms-2'>

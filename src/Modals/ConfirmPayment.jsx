@@ -2,6 +2,7 @@ import { Icon } from '@iconify/react';
 import React, { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast';
 import styled from 'styled-components'
+import HashLoader from '../Dashboard/Loader';
 import { getOrderById, Orderapproval } from '../Utils/Apis';
 
 const Container = styled.div`
@@ -42,11 +43,12 @@ const Container = styled.div`
 
 `;
 
-const ConfirmPayment = ({OrdersIds, onData}) => {
+const ConfirmPayment = ({ OrdersIds, onData }) => {
 
     // const OrdersIds = OrdersIds?.OrdersIds
 
     const [Orders, setOrders] = useState('');
+    const [showLoader, setShowLoader] = useState(false);
     const [utr, setutr] = useState("");
     const [utrValidError, setutrValidError] = useState(false);
     const [utrIsRequiredError, setutrIsRequiredlError] = useState(false);
@@ -98,9 +100,11 @@ const ConfirmPayment = ({OrdersIds, onData}) => {
             formData.append("approval_status", "APPROVED");
             formData.append("remark", remark);
             try {
+                setShowLoader(true);
                 const response = await Orderapproval(formData, Orders?.agent, Orders?.order_id);
-                console.log(response, )
+                console.log(response,)
                 if (response?.status === 200) {
+                    setShowLoader(false);
                     toast.success(response?.data?.message);
                     // setApprovedStatus(response?.data?.approval_status)
                     onData(true);
@@ -133,6 +137,11 @@ const ConfirmPayment = ({OrdersIds, onData}) => {
 
     return (
         <Container>
+            {
+                showLoader && (
+                    <HashLoader />
+                )
+            }
             <div className="container-fluid">
                 <div className="row">
                     <div className="rowBlue borderRadiusTop text-center p-2">

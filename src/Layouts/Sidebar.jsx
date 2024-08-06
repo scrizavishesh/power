@@ -164,7 +164,7 @@ const Sidebar = ({ lightmode, setlightmode }) => {
     };
 
     const role = getRole();
-    console.log(role);
+    console.log(role, "role");
 
     const [activeLink, setActiveLink] = useState('dashboard');
 
@@ -174,6 +174,8 @@ const Sidebar = ({ lightmode, setlightmode }) => {
 
     useEffect(() => {
         dispatch(fetchUsers());
+        getRole();
+        console.log(role, "role");
     }, [dispatch]);
 
     return (

@@ -70,10 +70,11 @@ const AdminDashboard = ({ lightMode }) => {
 
   const { toggleSidebar } = useMainContext();
   const dispatch = useDispatch();
-  const [showLoader, setShowLoader] = useState(false)
   const { users, status, error } = useSelector(state => state.users);
-
   const [profileDetails, setprofileDetails] = useState(users[0]);
+  
+  const [showLoader, setShowLoader] = useState(false);
+  
   const [Statics, setStatics] = useState('');
 
   const fetchData = async () => {
@@ -83,7 +84,6 @@ const AdminDashboard = ({ lightMode }) => {
       console.log(orderResponse, "Dash Statics ")
       if (orderResponse?.status === 200) {
         setStatics(orderResponse?.data);
-        
         setTimeout(() => {
           setShowLoader(false);
         }, 1000);
@@ -113,7 +113,7 @@ const AdminDashboard = ({ lightMode }) => {
         <Icon className='toggleBars mb-3' icon="fa6-solid:bars" width="1.5em" height="1.5em" style={{ color: '#000' }} onClick={toggleSidebar} />
         <div className="row">
           <div className="col-md-7 col-sm-12 order-md-1 order-sm-2">
-            <p className='greyText font14 fontWeight700'>Hi {profileDetails?.name},</p>
+            <p className='greyText font14 fontWeight700'>Hi {profileDetails?.username},</p>
             <p className={`font32 fontWeight700`}>Welcome to Dashboard</p>
           </div>
           <div className="col-md-5 col-sm-12 order-md-2 order-sm-1 align-self-center">

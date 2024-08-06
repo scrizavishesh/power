@@ -1,9 +1,10 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom'
 import { LoginSuccess, Loginuse } from '../../Utils/Apis';
 import toast from 'react-hot-toast';
 import { encryptData } from '../../Utils/Encrypt_data';
+import HashLoader from '../../Dashboard/Loader';
 
 const Container = styled.div`
     display: flex;

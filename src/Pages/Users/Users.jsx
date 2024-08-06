@@ -5,7 +5,10 @@ import styled from 'styled-components'
 import { useMainContext } from '../../Dashboard/DashboardLayout';
 import { getAgents, updateUserbyId } from '../../Utils/Apis';
 import { toast } from 'react-hot-toast';
-// import ReactPaginate from 'react-js-pagination';
+import ResponsivePagination from 'react-responsive-pagination';
+import 'react-responsive-pagination/themes/classic.css';
+import HashLoader from '../../Dashboard/Loader';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Container = styled.div`
 
@@ -87,18 +90,24 @@ const Container = styled.div`
 
 const Users = () => {
 
+  const dispatch = useDispatch();
+  const { users, status, error } = useSelector(state => state.users);
+  const [profileDetail, setprofileDetail] = useState(users[0]);
+
   const navigate = useNavigate();
   const { toggleSidebar } = useMainContext();
+  const [showLoader, setShowLoader] = useState(false);
 
   const [Employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
+  const [role, setRole] = useState('')
   const [csvData, setCsvData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+  const [statu, setStatus] = useState('')
+
 
   // const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
   // tooltipTriggerList.forEach((tooltipTriggerEl) => {
@@ -107,20 +116,27 @@ const Users = () => {
 
   useEffect(() => {
     getEmployess();
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, role, statu]);
 
   // Handle input change
   const handleInputChange = (value) => {
     setSearchTerm(value);
   };
 
+  const changeRole = (value) => {
+    setRole(value)
+  }
+
   const getEmployess = async (e) => {
-    const response = await getAgents(currentPage, searchTerm);
+    setShowLoader(true);
+    const response = await getAgents(currentPage, searchTerm, role, statu);
+    console.log(response, "Users")
     try {
       if (response?.status === 200) {
+        setShowLoader(false);
         toast.success("Gets all users successfully");
         setEmployees(response?.data?.results);
-        setTotalItems(response?.data?.count);
+        setTotalPages(Math.ceil(response.data.count / itemsPerPage));
       } else {
       }
     } catch (err) {
@@ -156,10 +172,9 @@ const Users = () => {
 
 
   const handleNavigate = (id, update) => {
-    console.log(update, "update")
-    if(update){
-      userUpdate(id, update)
-    }else{
+    if (update) {
+      userUpdate(id, update);
+    } else {
       navigate(`/kBProfilePage/${id}`);
     }
   };
@@ -170,17 +185,24 @@ const Users = () => {
     const formData = new FormData();
     formData.append("is_checked_in", update);
     try {
+      setShowLoader(true);
       const response = await updateUserbyId(id, formData);
       console.log(response, "user update successfully")
       if (response.status === 200) {
+        setShowLoader(false);
         toast.success("user update successfully");
-        userSuccess();
+        getEmployess();
         setchangeState(false);
       }
     } catch (err) {
       console.log(err);
       toast.error(err?.response?.data?.username[0]);
     }
+  };
+
+
+  const handleStatus = (value) => {
+    setStatus(value);
   };
 
 
@@ -191,14 +213,19 @@ const Users = () => {
 
   return (
     <Container>
+      {
+        showLoader && (
+          <HashLoader />
+        )
+      }
       <div className="container-fluid p-lg-5 p-3">
         <Icon className='toggleBars mb-3' icon="fa6-solid:bars" width="1.5em" height="1.5em" style={{ color: '#000' }} onClick={toggleSidebar} />
         <div className="row">
           <div className="col-md-7 col-sm-12 order-md-1 order-sm-2">
-            <p className='greyText font14 fontWeight700'>Hi Shalu,</p>
+            <p className='greyText font14 fontWeight700'>Hi {profileDetail?.username},</p>
             <p className='font32 fontWeight700'>Welcome to Users</p>
           </div>
-          
+
           <div className="col-md-5 col-sm-12 order-md-2 order-sm-1 align-self-center">
             <div className="row">
               <div className="col-2 align-self-center text-center">
@@ -218,41 +245,27 @@ const Users = () => {
             <div className="flex-grow-1 align-self-center">
               <ul class="nav nav-pills gap-3" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link active font14" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button" role="tab" aria-controls="pills-all" aria-selected="true">All</button>
+                  <button onClick={() => handleStatus("")} className={`nav-link ${statu === "" ? "active" : ""} font14`} >All</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link borderRadius10 font14" id="pills-active-tab" data-bs-toggle="pill" data-bs-target="#pills-active" type="button" role="tab" aria-controls="pills-active" aria-selected="false">Active</button>
+                  <button onClick={() => handleStatus("active")} className={`nav-link ${statu === "active" ? "active" : ""} font14`} >Active</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link borderRadius10 font14" id="pills-inactive-tab" data-bs-toggle="pill" data-bs-target="#pills-inactive" type="button" role="tab" aria-controls="pills-inactive" aria-selected="false">Inactive</button>
+                  <button onClick={() => handleStatus("inactive")} className={`nav-link ${statu === "inactive" ? "active" : ""} font14`} >Inactive</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link borderRadius10 font14" id="pills-blocked-tab" data-bs-toggle="pill" data-bs-target="#pills-blocked" type="button" role="tab" aria-controls="pills-blocked" aria-selected="false">Blocked</button>
+                  {/* <button onClick={() => handleStatus("block")} className={`nav-link ${status === "block" ? "active" : "Data not Found"} font14`} >Blocked</button> */}
                 </li>
               </ul>
             </div>
             <Link className='btn borderRadius10 addNewUserBtn me-3 align-self-center' to='/createUser'>+ Add New Account</Link>
-            {/* <button className='btn borderRadius10 bg-white position-relative' onClick={()=> setDropVisible(!dropVisible)}>
-              <span className='me-5'>Peers</span>
-              <span className='borderRadius8 addNewUserBtn p-1'>
-                <Icon icon="icon-park-outline:down" width="1.5em" height="1.5em" style={{ color: '#2C6DB5'}} />
-              </span>
-              <div className={`${dropVisible? 'dropButtonDiv': 'd-none'} borderRadius8 position-absolute bg-white p-2`}>
-                <ul className='list-unstyled m-0 text-start '>
-                  <li className='font14 p-1 hovercolor ps-2'>Super Admin</li>
-                  <li className='font14 p-1 hovercolor ps-2'>Sub Admin</li>
-                  <li className='font14 p-1 hovercolor ps-2'>Admin</li>
-                  <li className='font14 p-1 hovercolor ps-2'>Peer</li>
-                </ul>
-              </div>
-            </button> */}
             <span className='btn borderRadius10 bg-white d-flex'>
-              <select class="form-select p-0 font14 me-3" aria-label="Default select example">
-                <option value='' disabled>-- Choose --</option>
-                <option value="Super Admin">Super Admin</option>
-                <option value="Sub Admin">Sub Admin</option>
-                <option value="Admin">Admin</option>
-                <option selected value="Peer">Peer</option>
+              <select onChange={(e) => changeRole(e.target.value)} class="form-select p-0 font14 me-3" aria-label="Default select example">
+                <option value=''>-- Choose --</option>
+                <option value="superadmin">Super Admin</option>
+                <option value="admin">Admin</option>
+                <option value="subadmin">Sub Admin</option>
+                <option value="agent">Peer</option>
               </select>
               <span className='borderRadius8 addNewUserBtn p-1'>
                 <Icon icon="icon-park-outline:down" width="1.5em" height="1.5em" style={{ color: '#2C6DB5' }} />
@@ -277,7 +290,7 @@ const Users = () => {
                   {Employees?.length !== 0 ? (
                     Employees?.map((employ) => {
                       const role = getRole(employ);
-                      const status = getStatus(employ.is_checked_in);
+                      const statu = getStatus(employ.is_checked_in);
                       return (
                         <tr onClick={(e) => handleNavigate(employ?.id)}>
                           <td className='font14 lineHeight24 align-middle'>{employ?.username}</td>
@@ -289,29 +302,30 @@ const Users = () => {
                               icon="pepicons-pencil:circle-filled"
                               width="1.4em"
                               height="1.4em"
-                              style={{ color: status.color }}
+                              style={{ color: statu.color }}
                             />
-                            <span>{status.text}</span>
+                            <span>{statu.text}</span>
                           </td>
                           <td className='font14 lineHeight24 align-middle d-flex'>
-                            <div onClick={(e) => handleNavigate(employ?.id, `${status.text === 'Active' ? false : true}`)} type='button' className="flex-grow-1">
-                              <Icon className='me-2' icon="icomoon-free:radio-unchecked" width="1em" height="1em" style={{ color: `${status.text === 'Active' ? '#FC2222' : '#22C55D'}` }} />
-                              <span className={`${status.text === 'Active' ? 'textInactive' : 'textActive'}`}>Mark {status.text === 'Active' ? 'Inactive' : 'Active'}</span>
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleNavigate(employ?.id, `${statu.text === 'Active' ? false : true}`);
+                              }}
+                              type='button'
+                              className="flex-grow-1"
+                            >
+                              <Icon
+                                className='me-2'
+                                icon="icomoon-free:radio-unchecked"
+                                width="1em"
+                                height="1em"
+                                style={{ color: `${statu.text === 'Active' ? '#FC2222' : '#22C55D'}` }}
+                              />
+                              <span className={`${statu.text === 'Active' ? 'textInactive' : 'textActive'}`}>
+                                Mark {statu.text === 'Active' ? 'Inactive' : 'Active'}
+                              </span>
                             </div>
-                            {/* <div class="dropdown">
-                                <span class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                  <div class="dropdown">
-                                    <span class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                      <Icon className='align-self-center' icon="bi:three-dots" width="1em" height="1em" style={{ color: '#000' }} />
-                                    </span>
-                                    <ul class="dropdown-menu p-1">
-                                      <li><a class="dropdown-item font14" href="#">Action</a></li>
-                                      <li><a class="dropdown-item font14" href="#">Another action</a></li>
-                                      <li><a class="dropdown-item font14" href="#">Something else here</a></li>
-                                    </ul>
-                                  </div>
-                                </span>
-                              </div> */}
                           </td>
                         </tr>
 
@@ -327,185 +341,11 @@ const Users = () => {
                   }
                 </tbody>
               </table>
-            </div>
-            <div class="tab-pane fade" id="pills-active" role="tabpanel" aria-labelledby="pills-active-tab" tabindex="0">
-              <table className="table table-responsive">
-                <thead>
-                  <tr>
-                    <td className='font16 lineHeight21'>Name</td>
-                    <td className='font16 lineHeight21'>Role</td>
-                    <td className='font16 lineHeight21'>User UPI ID</td>
-                    <td className='font16 lineHeight21'>Active status</td>
-                    <td className='font16 lineHeight21'>Action</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className='font14 lineHeight24 align-middle'>KB Payout</td>
-                    <td className='font14 lineHeight24 align-middle'>Peer</td>
-                    <td className='font14 lineHeight24 align-middle'>KB@HDFC</td>
-                    <td className='font14 lineHeight24 align-middle'>
-                      <Icon className='me-2' icon="pepicons-pencil:circle-filled" width="1.4em" height="1.4em" style={{ color: '#22C55D' }} />
-                      <span>Active</span>
-                    </td>
-                    <td className='font14 lineHeight24 align-middle d-flex'>
-                      <div className="flex-grow-1">
-                        <Icon className='me-2' icon="icomoon-free:radio-unchecked" width="1em" height="1em" style={{ color: '#FC2222' }} />
-                        <span className='textInactive'>Mark Inactive</span>
-                      </div>
-                      <div class="dropdown">
-                        <span class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          <div class="dropdown">
-                            <span class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                              <Icon className='align-self-center' icon="bi:three-dots" width="1em" height="1em" style={{ color: '#000' }} />
-                            </span>
-                            <ul class="dropdown-menu p-1">
-                              <li><a class="dropdown-item font14" href="#">Action</a></li>
-                              <li><a class="dropdown-item font14" href="#">Another action</a></li>
-                              <li><a class="dropdown-item font14" href="#">Something else here</a></li>
-                            </ul>
-                          </div>
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className='font14 lineHeight24 align-middle'>Sameer khana</td>
-                    <td className='font14 lineHeight24 align-middle'>Sub Admin</td>
-                    <td className='font14 lineHeight24 align-middle'>Elena@HDFC</td>
-                    <td className='font14 lineHeight24 align-middle'>
-                      <Icon className='me-2' icon="pepicons-pencil:circle-filled" width="1.4em" height="1.4em" style={{ color: '#22C55D' }} />
-                      <span>Active</span>
-                    </td>
-                    <td className='font14 lineHeight24 align-middle d-flex'>
-                      <div className="flex-grow-1">
-                        <Icon className='me-2' icon="icomoon-free:radio-unchecked" width="1em" height="1em" style={{ color: '#FC2222' }} />
-                        <span className='textInactive'>Mark Inactive</span>
-                      </div>
-                      <div class="dropdown">
-                        <span class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          <Icon className='align-self-center' icon="bi:three-dots" width="1em" height="1em" style={{ color: '#000' }} />
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className='font14 lineHeight24 align-middle'>Ramesh Copra</td>
-                    <td className='font14 lineHeight24 align-middle'>Sub Admin</td>
-                    <td className='font14 lineHeight24 align-middle'>Elena@HDFC</td>
-                    <td className='font14 lineHeight24 align-middle'>
-                      <Icon className='me-2' icon="pepicons-pencil:circle-filled" width="1.4em" height="1.4em" style={{ color: '#22C55D' }} />
-                      <span>Active</span>
-                    </td>
-                    <td className='font14 lineHeight24 align-middle d-flex'>
-                      <div className="flex-grow-1">
-                        <Icon className='me-2' icon="icomoon-free:radio-unchecked" width="1em" height="1em" style={{ color: '#FC2222' }} />
-                        <span className='textInactive'>Mark Inactive</span>
-                      </div>
-                      <div class="dropdown">
-                        <span class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          <Icon className='align-self-center' icon="bi:three-dots" width="1em" height="1em" style={{ color: '#000' }} />
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className='font14 lineHeight24 align-middle'>Deepika Padukone</td>
-                    <td className='font14 lineHeight24 align-middle'>Peer</td>
-                    <td className='font14 lineHeight24 align-middle'>Elena@HDFC</td>
-                    <td className='font14 lineHeight24 align-middle'>
-                      <Icon className='me-2' icon="pepicons-pencil:circle-filled" width="1.4em" height="1.4em" style={{ color: '#22C55D' }} />
-                      <span>Active</span>
-                    </td>
-                    <td className='font14 lineHeight24 align-middle d-flex'>
-                      <div className="flex-grow-1">
-                        <Icon className='me-2' icon="icomoon-free:radio-unchecked" width="1em" height="1em" style={{ color: '#FC2222' }} />
-                        <span className='textInactive'>Mark Inactive</span>
-                      </div>
-                      <div class="dropdown">
-                        <span class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          <Icon className='align-self-center' icon="bi:three-dots" width="1em" height="1em" style={{ color: '#000' }} />
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="tab-pane fade" id="pills-inactive" role="tabpanel" aria-labelledby="pills-inactive-tab" tabindex="0">
-              <table className="table table-responsive">
-                <thead>
-                  <tr>
-                    <td className='font16 lineHeight21'>Name</td>
-                    <td className='font16 lineHeight21'>Role</td>
-                    <td className='font16 lineHeight21'>User UPI ID</td>
-                    <td className='font16 lineHeight21'>Active status</td>
-                    <td className='font16 lineHeight21'>Action</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className='font14 lineHeight24 align-middle'>Rohit Pandey</td>
-                    <td className='font14 lineHeight24 align-middle'>Peer</td>
-                    <td className='font14 lineHeight24 align-middle'>982938932@paytm</td>
-                    <td className='font14 lineHeight24 align-middle'>
-                      <Icon className='me-2' icon="pepicons-pencil:circle-filled" width="1.4em" height="1.4em" style={{ color: '#FC2222' }} />
-                      <span className='textGrey'>Last active 1h ago</span>
-                    </td>
-                    <td className='font14 lineHeight24 align-middle d-flex'>
-                      <div className="flex-grow-1">
-                        <Icon className='me-2' icon="icon-park-solid:radio-two" width="1.3em" height="1.3em" style={{ color: '#22C55D' }} />
-                        <span className='textActive'>Mark Active</span>
-                      </div>
-                      <div class="dropdown">
-                        <span class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          <Icon className='align-self-center' icon="bi:three-dots" width="1em" height="1em" style={{ color: '#000' }} />
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className='font14 lineHeight24 align-middle'>Alia bhatt</td>
-                    <td className='font14 lineHeight24 align-middle'>Peer</td>
-                    <td className='font14 lineHeight24 align-middle'>Elena@HDFC</td>
-                    <td className='font14 lineHeight24 align-middle'>
-                      <Icon className='me-2' icon="pepicons-pencil:circle-filled" width="1.4em" height="1.4em" style={{ color: '#FC2222' }} />
-                      <span className='textGrey'>Last active 24h 52m ago</span>
-                    </td>
-                    <td className='font14 lineHeight24 align-middle d-flex'>
-                      <div className="flex-grow-1">
-                        <Icon className='me-2' icon="icon-park-solid:radio-two" width="1.3em" height="1.3em" style={{ color: '#22C55D' }} />
-                        <span className='textActive'>Mark Active</span>
-                      </div>
-                      <div class="dropdown">
-                        <span class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          <Icon className='align-self-center' icon="bi:three-dots" width="1em" height="1em" style={{ color: '#000' }} />
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className='font14 lineHeight24 align-middle'>Rohit Shetty</td>
-                    <td className='font14 lineHeight24 align-middle'>Sub Admin</td>
-                    <td className='font14 lineHeight24 align-middle'>Elena@HDFC</td>
-                    <td className='font14 lineHeight24 align-middle'>
-                      <Icon className='me-2' icon="pepicons-pencil:circle-filled" width="1.4em" height="1.4em" style={{ color: '#FC2222' }} />
-                      <span className='textGrey'>Last active 3h 12m ago</span>
-                    </td>
-                    <td className='font14 lineHeight24 align-middle d-flex'>
-                      <div className="flex-grow-1">
-                        <Icon className='me-2' icon="icon-park-solid:radio-two" width="1.3em" height="1.3em" style={{ color: '#22C55D' }} />
-                        <span className='textActive'>Mark Active</span>
-                      </div>
-                      <div class="dropdown">
-                        <span class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          <Icon className='align-self-center' icon="bi:three-dots" width="1em" height="1em" style={{ color: '#000' }} />
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <ResponsivePagination
+                current={currentPage}
+                total={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
             <div class="tab-pane fade" id="pills-blocked" role="tabpanel" aria-labelledby="pills-blocked-tab" tabindex="0">
               <span className='text-danger font14'>No Data Found !!</span>

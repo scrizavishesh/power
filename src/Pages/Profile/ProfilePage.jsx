@@ -113,9 +113,12 @@ const Container = styled.div`
 
 const ProfilePage = () => {
 
+    
+
     const { toggleSidebar } = useMainContext();
     const dispatch = useDispatch();
     const { users, status, error } = useSelector(state => state.users);
+    const [showLoader, setShowLoader] = useState(false);
 
     const [profileDetails, setprofileDetails] = useState(users[0]);
     const [Statics, setStatics] = useState('');
@@ -136,14 +139,16 @@ const ProfilePage = () => {
 
 
 
-  
-  
+
+
 
     const fetchData = async () => {
         try {
+            setShowLoader(true);
             const orderResponse = await getDashStatics();
             console.log(orderResponse, "Dash Statics ")
             if (orderResponse?.status === 200) {
+                setShowLoader(false);
                 setStatics(orderResponse?.data)
             }
         } catch (err) {
@@ -157,7 +162,7 @@ const ProfilePage = () => {
     useEffect(() => {
         dispatch(fetchUsers());
         fetchData();
-      }, [dispatch]);
+    }, [dispatch]);
 
 
 

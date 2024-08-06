@@ -47,6 +47,16 @@ export const createOrder = async (requestData) => {
   }
 }
 
+export const createOrderForPayout = async (requestData) => {
+  axios.defaults.headers.common["Authorization"] = bearerToken;
+  var response = await axios.post(`${API_URL}/api/payout/create/`, requestData);
+  if (response) {
+    return response;
+  } else {
+    return [];
+  }
+}
+
 export const getAllOrders = async (searchData, pageNo, day, startDate, endDate, agent) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
   var response = await axios.get(`${API_URL}/api/orders/?page=${pageNo}&search=${searchData}&date_filter=${day}&start_date=${startDate}&end_date=${endDate}&agent_id=${agent}`,);
@@ -88,9 +98,9 @@ export const getAllForAdmin = async (searchData, pageNo) => {
 }
 
 
-export const getAgents = async (pageNo) => {
+export const getAgents = async (pageNo, searchTerm, role, status) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
-  var response = await axios.get(`${API_URL}/api/users/getalluser/?page=${pageNo}`,);
+  var response = await axios.get(`${API_URL}/api/users/getalluser/?page=${pageNo}&search=${searchTerm}&role=${role}&status=${status}`,);
   if (response) {
     return response;
   } else {

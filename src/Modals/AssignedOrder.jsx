@@ -1,6 +1,7 @@
 import { Icon } from '@iconify/react';
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+import HashLoader from '../Dashboard/Loader';
 import { approvePayout, perticularPayoutOrder } from '../Utils/Apis';
 
 const Container = styled.div`
@@ -51,6 +52,7 @@ const AssignedOrder = ({ OrderId, Price, onData }) => {
     console.log(OrderId)
 
     const [utr, setutr] = useState("");
+    const [showLoader, setShowLoader] = useState(false);
     const [utrValidError, setutrValidError] = useState(false);
     const [utrIsRequiredError, setutrIsRequiredlError] = useState(false);
     const [remark, setRemark] = useState("");
@@ -120,10 +122,12 @@ const AssignedOrder = ({ OrderId, Price, onData }) => {
             formData.append("upload_slip", image);
             formData.append("remark", remark);
             try {
+                setShowLoader(true);
                 const response = await approvePayout(OrderId, formData);
                 console.log(response, "Approved Status")
                 console.log(response,)
                 if (response?.status === 200) {
+                    setShowLoader(false);
                     toast.success(response?.data?.message);
                     // setApprovedStatus(response?.data?.approval_status)
                     onData(true);
@@ -139,9 +143,11 @@ const AssignedOrder = ({ OrderId, Price, onData }) => {
 
     const fetchData = async () => {
         try {
+            setShowLoader(true);
             const orderResponse = await perticularPayoutOrder(OrderId);
             console.log(orderResponse, "Assigned Order by Id")
             if (orderResponse?.status === 200 && orderResponse?.data)
+            setShowLoader(false);
                 setOrderDetails(orderResponse?.data);
         } catch (err) {
             console.log(err);
@@ -159,6 +165,11 @@ const AssignedOrder = ({ OrderId, Price, onData }) => {
 
     return (
         <Container>
+            {
+                showLoader && (
+                    <HashLoader />
+                )
+            }
             <div className="container-fluid">
                 <div className="row rowBlue borderRadius8top">
                     <p className='text-end'><Icon icon="mdi:cross-circle-outline" width="1.1em" height="1.1em" style={{ color: '#B5B5B5' }} data-bs-dismiss="modal" aria-label="Close" /></p>
@@ -236,7 +247,7 @@ const AssignedOrder = ({ OrderId, Price, onData }) => {
                             </div>
                             <div className='mb-3'>
                                 <label class="form-label">Upload Slip:</label>
-                                <input style={{ background: "#17545E14" }} type="file" onChange={(e) => handleImage(e.target.files[0])}  className='form-control' placeholder='Enter UTR' />
+                                <input style={{ background: "#17545E14" }} type="file" onChange={(e) => handleImage(e.target.files[0])} className='form-control' placeholder='Enter UTR' />
                                 {utrIsRequiredError && (
                                     <div className='text-start p-2' style={{ color: "red", fontSize: "x-small" }}>
                                         UTR Number is required
