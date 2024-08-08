@@ -15,6 +15,7 @@ import PayOutOperation from '../OperationsForUser/PayOutOperations';
 import PayInOperations from '../Pages/Operations/PayInOperations';
 import CreatePayInOrder from '../Pages/Operations/CreatePayInOrder';
 import CreatePayoutOrder from '../Pages/Operations/CreatePayoutOrder';
+import Index from '../Pages/SavedReports/Index';
 
 const Main = ({ lightMode, setLightMode }) => {
   return (
@@ -32,6 +33,7 @@ const Main = ({ lightMode, setLightMode }) => {
         <Route path='/manageUTR' element={<MangeUTR />} />
         <Route path='/settings' element={<Settings />} />
         <Route path='/profilePage' element={<ProfilePage />} />
+        <Route path='/saved_reports' element={<Index />} />
         <Route path='/kBProfilePage/:id' element={<KBProfilePage />} />
         <Route path="*" element={<PageNotFound lightMode={lightMode} setLightMode={setLightMode} />} />
       </Routes>

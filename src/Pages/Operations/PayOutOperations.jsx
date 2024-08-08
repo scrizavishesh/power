@@ -226,13 +226,13 @@ const PayOutOperations = () => {
                   <button onClick={() => handleInputChange("CREATED")} className={`nav-link ${searchTerm === "CREATED" ? "active" : ""} font14`} type="button" >New Unassigned</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button onClick={() => handleInputChange("PENDING")} className={`nav-link ${searchTerm === "PENDING" ? "active" : ""} font14`} type="button">Pending</button>
-                </li>
-                <li className="nav-item" role="presentation">
                   <button onClick={() => handleInputChange("SUBMITTED")} className={`nav-link ${searchTerm === "SUBMITTED" ? "active" : ""} font14`} type="button">Approved</button>
                 </li>
                 <li className="nav-item" role="presentation">
                   <button onClick={() => handleInputChange("ASSIGNED")} className={`nav-link ${searchTerm === "ASSIGNED" ? "active" : ""} font14`} type="button">Assigned</button>
+                </li>
+                <li className="nav-item" role="presentation">
+                  <button onClick={() => handleInputChange("REJECTED")} className={`nav-link ${searchTerm === "REJECTED" ? "active" : ""} font14`} type="button">Rejected</button>
                 </li>
               </ul>
             </div>
@@ -324,8 +324,6 @@ const PayOutOperations = () => {
                               >
                                 {provider?.approval_status}
                               </button>
-
-
                             </p>
                             <p className='font18 text-center'>{provider?.payment_amount}</p>
                             {

@@ -6,6 +6,13 @@ import { useMainContext } from '../Dashboard/DashboardLayout';
 import React, { useState, useEffect } from 'react';
 import { DownloadOrders, getAgents, getAllOrders, getOrdersForAgent } from '../Utils/Apis';
 import { useParams } from 'react-router-dom';
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/themes/light.css";
+import { Link } from 'react-router-dom';
+import HashLoader from '../Dashboard/Loader';
+import ResponsivePagination from 'react-responsive-pagination';
+import 'react-responsive-pagination/themes/classic.css';
+import { useDispatch, useSelector } from 'react-redux';
 // import { Icon } from '@iconify/react';
 
 
@@ -118,42 +125,45 @@ const PayInOperations = () => {
 
   const { toggleSidebar } = useMainContext();
 
-  const todayDate = format(new Date(), 'dd/MM/yyyy');
-  const [updateData, setupdateData] = useState(false)
+  const dispatch = useDispatch();
+  const { users, status, error } = useSelector(state => state.users);
+  const [profileDetails, setprofileDetails] = useState(users[0]);
+
+  const todayDate = format(new Date(), 'yyyy-MM-dd');
+  const [updateData, setupdateData] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
 
   const [orderCreate, setCreateOrder] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
   const [searchTerm, setSearchTerm] = useState('');
   const [showAgents, setShowAgents] = useState([]);
   const [currentpage, setcurrentpage] = useState('');
   const [csvData, setCsvData] = useState([]);
   const [agent, setAgent] = useState('');
-  const [activeButton, setActiveButton] = useState("today");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [dateRange, setDateRange] = useState([todayDate, todayDate]);
   const [OrdersIds, setOrdersIds] = useState()
+  const [activeButton, setActiveButton] = useState("");
+  const handleButtonClick = (buttonName) => {
+    setActiveButton(buttonName);
+  };
 
 
 
-  // const handleAgent = (value) => setAgent(value);
-
-  // const handlePageChange = (pageNumber) => {
-  //   setCurrentPage(pageNumber);
-  // };
-
-  // const handleButtonClick = (buttonName) => {
-  //   setActiveButton(buttonName);
-  //   setStartDate("");
-  //   setEndDate("");
-  // };
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
 
-  // const handleDateChange = (dates) => {
-  //   setStartDate(formatDate(dates[0]));
-  //   setEndDate(formatDate(dates[1]));
-  //   setActiveButton("custom");
-  // };
+  const handleDateChange = (selectedDates) => {
+    setDateRange(selectedDates);
+    setStartDate(formatDate(selectedDates[0]));
+    setEndDate(formatDate(selectedDates[1]));
+    setActiveButton("custom");
+  };
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -167,40 +177,28 @@ const PayInOperations = () => {
 
 
 
-  // const Download_Slip = async () => {
-  //   if (agent) {
-  //     try {
-  //       const response = await DownloadOrders(startDate, endDate, agent);
-  //       console.log(response, "download slip");
-  //       if (response?.status === 200) {
-  //         const rows = response?.data?.split('\n').map(row => row.split(','));
-  //         setCsvData(rows);
-  //       }
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   }
-  // };
+
 
 
   const fetchData = async () => {
     try {
-      const orderResponse = await getOrdersForAgent(id);
-      console.log(orderResponse, "For User")
-      
+      setShowLoader(true);
+      const orderResponse = await getAllOrders(searchTerm, currentPage, activeButton, startDate, endDate, id);
+      console.log(orderResponse)
       if (orderResponse?.status === 200 && orderResponse?.data?.results)
-        setCreateOrder(orderResponse?.data.results);
-      setTotalItems(orderResponse?.data?.count);
+        setShowLoader(false);
+      setCreateOrder(orderResponse?.data.results);
+      setTotalPages(Math.ceil(orderResponse.data.count / itemsPerPage));
     } catch (err) {
       console.log(err);
     }
 
-    try {
-      const agentsResponse = await getAgents(currentpage);
-      if (agentsResponse?.status === 200) setShowAgents(agentsResponse?.data?.results);
-    } catch (err) {
-      console.log(err);
-    }
+    // try {
+    //   const agentsResponse = await getAgents(currentpage);
+    //   if (agentsResponse?.status === 200) setShowAgents(agentsResponse?.data?.results);
+    // } catch (err) {
+    //   console.log(err);
+    // }
   };
 
   useEffect(() => {
@@ -225,11 +223,16 @@ const PayInOperations = () => {
 
   return (
     <Container>
+      {
+        showLoader && (
+          <HashLoader />
+        )
+      }
       <div className="container-fluid p-lg-5 p-3">
         <Icon className='toggleBars mb-3' icon="fa6-solid:bars" width="1.5em" height="1.5em" style={{ color: '#000' }} onClick={toggleSidebar} />
         <div className="row sticky-top">
           <div className="col-md-7 col-sm-12 order-md-1 order-sm-2">
-            <p className='greyText font14 fontWeight700'>Hi Shalu,</p>
+            <p className='greyText font14 fontWeight700'>Hi {profileDetails?.username},</p>
             <p className='font32 fontWeight700'>Welcome to PayIn Operations</p>
           </div>
           <div className="col-md-5 col-sm-12 order-md-2 order-sm-1 align-self-center">
@@ -251,122 +254,159 @@ const PayInOperations = () => {
             <div className="flex-grow-1 align-self-center">
               <ul className="nav nav-pills gap-3" id="pills-tab" role="tablist">
                 <li className="nav-item" role="presentation">
-                  <button className="nav-link active font14" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button" role="tab" aria-controls="pills-all" aria-selected="true">All</button>
+                  <button onClick={() => handleInputChange("")} className={`nav-link ${searchTerm === "" ? "active" : ""} font14`} type="button" >All</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button className="nav-link borderRadius10 font14" id="pills-pending-tab" data-bs-toggle="pill" data-bs-target="#pills-pending" type="button" role="tab" aria-controls="pills-pending" aria-selected="false">Pending</button>
+                  <button onClick={() => handleInputChange("PENDING")} className={`nav-link ${searchTerm === "PENDING" ? "active" : ""} font14`} type="button">Pending</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button className="nav-link borderRadius10 font14" id="pills-approved-tab" data-bs-toggle="pill" data-bs-target="#pills-approved" type="button" role="tab" aria-controls="pills-approved" aria-selected="false">Approved</button>
+                  <button onClick={() => handleInputChange("APPROVED")} className={`nav-link ${searchTerm === "APPROVED" ? "active" : ""} font14`} type="button">Approved</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button className="nav-link borderRadius10 font14" id="pills-expired-tab" data-bs-toggle="pill" data-bs-target="#pills-expired" type="button" role="tab" aria-controls="pills-expired" aria-selected="false">Expired</button>
-                </li>
-                <li className="nav-item" role="presentation">
-                  <button className="nav-link borderRadius10 font14" id="pills-confirmed-tab" data-bs-toggle="pill" data-bs-target="#pills-confirmed" type="button" role="tab" aria-controls="pills-confirmed" aria-selected="false">Confirmed</button>
-                </li>
-                <li className="nav-item" role="presentation">
-                  <button className="nav-link borderRadius10 font14" id="pills-unconfirmed-tab" data-bs-toggle="pill" data-bs-target="#pills-unconfirmed" type="button" role="tab" aria-controls="pills-unconfirmed" aria-selected="false">Unconfirmed</button>
-                </li>
-                <li className="nav-item" role="presentation">
-                  <button className="nav-link borderRadius10 font14" id="pills-declined-tab" data-bs-toggle="pill" data-bs-target="#pills-declined" type="button" role="tab" aria-controls="pills-declined" aria-selected="false">Declined</button>
+                  <button onClick={() => handleInputChange("EXPIRED")} className={`nav-link ${searchTerm === "EXPIRED" ? "active" : ""} font14`} type="button" >Expired</button>
                 </li>
               </ul>
             </div>
-            <span className='bg-white align-self-center p-2 borderRadius10 me-2'>
-              <Icon icon="ion:filter" width="1.4em" height="1.4em" style={{ color: '#2C6DB5' }} />
-            </span>
-            <span className='bg-white align-self-center p-2 borderRadius10 textBlue font16'>
-              {todayDate}
-              <Icon className='ms-2' icon="uiw:date" width="1.1em" height="1.1em" style={{ color: '#2C6DB5' }} />
-            </span>
+            <Link className='btn borderRadius10 addNewUserBtn me-3 align-self-center' to='/createPayInOrder'>+ Create Order</Link>
+            <div className="dropdown">
+              <button style={{ borderColor: "#0000" }} type="button" data-bs-toggle="dropdown" aria-expanded="false" className='bg-white align-self-center p-2 borderRadius10 me-2 dropdown-toggle'>
+                <Icon icon="ion:filter" width="1.4em" height="1.4em" style={{ color: '#2C6DB5' }} />
+              </button>
+              <ul className="dropdown-menu">
+                <li><a className="dropdown-item" onClick={() => handleButtonClick("")}>All</a></li>
+                <li><a className="dropdown-item" onClick={() => handleButtonClick("today")}>Today</a></li>
+                <li><a className="dropdown-item" onClick={() => handleButtonClick("yesterday")}>Yesterday</a></li>
+              </ul>
+            </div>
+
+            {/* <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2" />
+              <span class="input-group-text" id="basic-addon2">@example.com</span>
+          </div> */}
+            <div className="date-picker-container">
+              <Flatpickr
+                class="form-control form-control-lg"
+                style={
+                  activeButton === "custom"
+                    ? {
+                      background: "#1961A3",
+                      border: "1px solid #DDDDEB",
+                      color: "#fff",
+                    }
+                    : {}
+                }
+                placeholder=''
+                value={dateRange}
+                options={{
+                  mode: 'range',
+                  dateFormat: 'Y-n-j',
+                }}
+                onClick={() => handleButtonClick("custom")}
+                onChange={handleDateChange}
+                render={({ defaultValue, ...props }, ref) => (
+                  <div className="input-group">
+                    <input {...props} ref={ref} defaultValue={defaultValue} />
+                    <span className="input-group-text">
+                      <Icon icon="uiw:date" width="1.1em" height="1.1em" style={{ color: '#2C6DB5' }} />
+                    </span>
+                  </div>
+                )}
+              />
+            </div>
+            {/* <span type="button" onChange={handleDateChange} className='bg-white align-self-center p-2 borderRadius10 textBlue font16'>
+            {todayDate}
+            <Icon className='ms-2' icon="uiw:date" width="1.1em" height="1.1em" style={{ color: '#2C6DB5' }} />
+          </span> */}
+
+
+
+
+
           </div>
         </div>
-        <div className="row overflow-scroll">
-          <div className="tab-content" id="pills-tabContent">
-            <div className="tab-pane fade show active" id="pills-all" role="tabpanel" aria-labelledby="pills-all-tab" tabIndex="0">
-              <table className="table table-responsive">
-                <thead>
-                  <tr>
-                    <td className='font16 lineHeight21'>Reciept Number</td>
-                    <td className='font16 lineHeight21'>Client Name</td>
-                    <td className='font16 lineHeight21'>Order ID</td>
-                    <td className='font16 lineHeight21'>Created on</td>
-                    <td className='font16 lineHeight21'>UTR Number</td>
-                    <td className='font16 lineHeight21'>UTR Slip</td>
-                    <td className='font16 lineHeight21'>Assignee UPI</td>
-                    <td className='font16 lineHeight21'>Amount</td>
-                    <td className='font16 lineHeight21'>Action</td>
-                  </tr>
-                  <span></span>
-                </thead>
-                <tbody>
-                  {orderCreate?.length !== 0 ? (
-                    orderCreate?.map((provider) => {
-                      return (
-                        <tr>
-                          <td className='font14 align-middle lineHeight24'>{provider?.receipt}</td>
-                          <td className='font14 align-middle lineHeight24'>{provider?.client_name}</td>
-                          <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.order_id}</td>
-                          <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.created_at?.slice(0, 10)}</td>
-                          <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.utr}</td>
-                          <td className='font14 align-middle lineHeight24'>
-                            <Icon icon="pepicons-pencil:file" width="1.5em" height="1.5em" style={{ color: '#2C6DB5' }} />
-                          </td>
-                          <td className='font14 align-middle lineHeight24 textBlue'>{provider?.upi}</td>
-                          <td className='font14 align-middle lineHeight24  text text-center'>
-                            <button className={`btn ${provider?.approval_status === 'APPROVED' ? 'confirmedButton' : (provider?.approval_status === 'PENDING' ? 'pendingButton' : (provider?.approval_status === 'CREATED' ? 'createdButton' : 'expiredButton'))} borderRadius4 me-3`}>{provider?.approval_status}</button>
-                            <p className=' font18 fontWeight700 mt-1'>{provider?.payment_amount}</p>
-                          </td>
-                          <td className='font14 align-middle lineHeight24'>
-                            <div className="d-flex">
-                              <button onClick={() => handleOrder(provider?.id)} className='btn approveButton me-3 align-self-center' type='button'>Approve</button>
-                              <div className="dropdown align-self-center">
-                                <span className="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                  <div className="dropdown">
+        <div className="container-fluid">
+          <div className="row overflow-auto">
+            <div className="tab-content" id="pills-tabContent">
+              <div className="tab-pane fade show active" id="pills-all" role="tabpanel" aria-labelledby="pills-all-tab" tabIndex="0">
+                <div className="table-responsive">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <td className='font16 lineHeight21'>Reciept Number</td>
+                        <td className='font16 lineHeight21'>Client Name</td>
+                        <td className='font16 lineHeight21'>Order ID</td>
+                        <td className='font16 lineHeight21'>Created on</td>
+                        <td className='font16 lineHeight21'>UTR Number</td>
+                        <td className='font16 lineHeight21'>UTR Slip</td>
+                        <td className='font16 lineHeight21'>Assignee UPI</td>
+                        <td className='font16 lineHeight21'>Amount</td>
+                        <td className='font16 lineHeight21'>Action</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orderCreate?.length !== 0 ? (
+                        orderCreate?.map((provider) => {
+                          return (
+                            <tr key={provider?.id}>
+                              <td className='font14 align-middle lineHeight24'>{provider?.receipt}</td>
+                              <td className='font14 align-middle lineHeight24'>{provider?.client_name}</td>
+                              <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.order_id}</td>
+                              <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.created_at?.slice(0, 10)}</td>
+                              <td className='font14 align-middle lineHeight24 text2Grey'>{provider?.utr}</td>
+                              <td className='font14 align-middle lineHeight24'>
+                                <Icon icon="pepicons-pencil:file" width="1.5em" height="1.5em" style={{ color: '#2C6DB5' }} />
+                              </td>
+                              <td className='font14 align-middle lineHeight24 textBlue'>{provider?.upi}</td>
+                              <td className='font14 align-middle lineHeight24 text text-center'>
+                                <button className={`btn ${provider?.approval_status === 'APPROVED' ? 'confirmedButton' : (provider?.approval_status === 'PENDING' ? 'pendingButton' : (provider?.approval_status === 'CREATED' ? 'createdButton' : 'expiredButton'))} borderRadius4 me-3`}>{provider?.approval_status}</button>
+                                <p className=' font18 fontWeight700 mt-1'>{provider?.payment_amount}</p>
+                              </td>
+                              <td className='font14 align-middle lineHeight24'>
+                                <div className="d-flex">
+                                  <button onClick={() => handleOrder(provider?.id)} className='btn approveButton me-3 align-self-center' type='button'>Approve</button>
+                                  <div className="dropdown align-self-center">
                                     <span className="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                      <Icon className='align-self-center' icon="bi:three-dots" width="1em" height="1em" style={{ color: '#000' }} />
                                     </span>
-                                    <ul className="dropdown-menu p-1">
-                                      <li><a className="dropdown-item font14" href="#">Action</a></li>
-                                      <li><a className="dropdown-item font14" href="#">Another action</a></li>
-                                      <li><a className="dropdown-item font14" href="#">Something else here</a></li>
-                                    </ul>
                                   </div>
-                                </span>
-                              </div>
-                            </div>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          <td style={{ textAlign: "center" }} colSpan={9}>
+                            No data found
                           </td>
                         </tr>
+                      )}
+                    </tbody>
+                  </table>
 
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td style={{ textAlign: "center" }} colSpan={6}>
-                        No data found
-                      </td>
-                    </tr>
-                  )
-                  }
-                </tbody>
-              </table>
-            </div>
-            <div className="tab-pane fade" id="pills-pending" role="tabpanel" aria-labelledby="pills-pending-tab" tabIndex="0">
-            </div>
-            <div className="tab-pane fade" id="pills-approved" role="tabpanel" aria-labelledby="pills-approved-tab" tabIndex="0">
-            </div>
-            <div className="tab-pane fade" id="pills-expired" role="tabpanel" aria-labelledby="pills-expired-tab" tabIndex="0">
-            </div>
-            <div className="tab-pane fade" id="pills-confirmed" role="tabpanel" aria-labelledby="pills-confirmed-tab" tabIndex="0">
-            </div>
-            <div className="tab-pane fade" id="pills-unconfirmed" role="tabpanel" aria-labelledby="pills-unconfirmed-tab" tabIndex="0">
-            </div>
-            <div className="tab-pane fade" id="pills-declined" role="tabpanel" aria-labelledby="pills-declined-tab" tabIndex="0">
-              <span className='text-danger font14'>No Data Found !!</span>
+                </div>
+                <ResponsivePagination
+                  current={currentPage}
+                  total={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+              <div className="tab-pane fade" id="pills-pending" role="tabpanel" aria-labelledby="pills-pending-tab" tabIndex="0">
+              </div>
+              <div className="tab-pane fade" id="pills-approved" role="tabpanel" aria-labelledby="pills-approved-tab" tabIndex="0">
+              </div>
+              <div className="tab-pane fade" id="pills-expired" role="tabpanel" aria-labelledby="pills-expired-tab" tabIndex="0">
+              </div>
+              <div className="tab-pane fade" id="pills-confirmed" role="tabpanel" aria-labelledby="pills-confirmed-tab" tabIndex="0">
+              </div>
+              <div className="tab-pane fade" id="pills-unconfirmed" role="tabpanel" aria-labelledby="pills-unconfirmed-tab" tabIndex="0">
+              </div>
+              <div className="tab-pane fade" id="pills-declined" role="tabpanel" aria-labelledby="pills-declined-tab" tabIndex="0">
+                <span className='text-danger font14'>No Data Found !!</span>
+              </div>
             </div>
           </div>
         </div>
+
       </div>
 
       {/* Confirm Modal */}

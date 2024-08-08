@@ -123,24 +123,6 @@ const ProfilePage = () => {
     const [profileDetails, setprofileDetails] = useState(users[0]);
     const [Statics, setStatics] = useState('');
 
-    // const userSuccess = async () => {
-    //     try {
-    //         const response = await userProfile()
-    //         console.log(response, "Login Success response");
-    //         if (response?.status === 200) {
-    //             // setprofileDetails(response?.data?.users[0]);
-    //         }
-    //     } catch (err) {
-    //         console.log(err)
-    //     }
-
-    // };
-
-
-
-
-
-
 
     const fetchData = async () => {
         try {

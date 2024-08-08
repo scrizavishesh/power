@@ -192,7 +192,7 @@ const Sidebar = ({ lightmode, setlightmode }) => {
                         <ul className={`list-unstyled ${sidebaropen ? 'p-3' : 'p-2'}`}>
                             <li className={`greyText ${sidebaropen ? 'ps-3 pt-3' : "ps-3 pt-3"}`}><h3 className="font14 menu-text mb-0"> MAIN</h3></li>
                             <li className='p-2'>
-                                <Link to="/" className={`menus p-2 rounded-3 ${activeLink === 'dashboard' ? 'active' : ''}`} onClick={() => handleActiveLink('dashboard')} >
+                                <Link to="/" className={`menus p-2 rounded-3 ${activeLink === '/' ? 'active' : ''}`} onClick={() => handleActiveLink('dashboard')} >
                                     <Icon icon="uil:home-alt" width="1.5em" height="1.2em" />
                                     <h3 className="font14 menu-text mb-0">Dashboard</h3>
                                 </Link>
@@ -231,14 +231,14 @@ const Sidebar = ({ lightmode, setlightmode }) => {
                             }
 
                             <li className='p-2'>
-                                <Link to="/dash3" className={`menus p-2 rounded-3 ${activeLink === 'dash3' ? 'active' : ''}`} onClick={() => handleActiveLink('dash3')} >
+                                <Link to="/saved_reports" className={`menus p-2 rounded-3 ${activeLink === 'saved_reports' ? 'active' : ''}`} onClick={() => handleActiveLink('dash3')} >
                                     <Icon icon="iconoir:page" width="1.5em" height="1.2em" />
                                     <h3 className="font14 menu-text mb-0">Saved Reports</h3>
                                 </Link>
                             </li>
                             <li className={`greyText ${sidebaropen ? 'ps-3 pt-3' : "ps- pt-3"}`}><h3 className="font14 menu-text mb-0"> SETTINGS</h3></li>
                             <li className='p-2'>
-                                <Link to="/manageUTR" className={`menus p-2 rounded-3 ${activeLink === 'dash4' ? 'active' : ''}`} onClick={() => handleActiveLink('dash4')} >
+                                <Link to="/manageUTR" className={`menus p-2 rounded-3 ${activeLink === ' manageUTR' ? 'active' : ''}`} onClick={() => handleActiveLink('dash4')} >
                                     <Icon icon="lucide:bell" width="1.5em" height="1.2em" />
                                     <h3 className="font14 menu-text mb-0">Manage</h3>
                                 </Link>

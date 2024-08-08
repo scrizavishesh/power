@@ -5,6 +5,14 @@ import { format } from 'date-fns';
 import { useMainContext } from '../Dashboard/DashboardLayout';
 import SubmittedPays from '../Modals/SubmittedPays';
 import { getAllAayoutRequests } from '../Utils/Apis';
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/themes/light.css";
+import AssignedOrder from '../Modals/AssignedOrder';
+import { Link } from 'react-router-dom';
+import HashLoader from '../Dashboard/Loader';
+import ResponsivePagination from 'react-responsive-pagination';
+import 'react-responsive-pagination/themes/classic.css';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Container = styled.div`
 
@@ -82,21 +90,32 @@ const PayOutOperations = () => {
 
   const todayDate = format(new Date(), 'dd/MM/yyyy');
 
-  const [updateData, setupdateData] = useState(false)
+  const dispatch = useDispatch();
+  const { users, status, error } = useSelector(state => state.users);
+  const [profileDetails, setprofileDetails] = useState(users[0]);
+
+  const [updateData, setupdateData] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
 
   const [orderCreate, setCreateOrder] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAgents, setShowAgents] = useState([]);
   const [currentpage, setcurrentpage] = useState('');
   const [csvData, setCsvData] = useState([]);
   const [agent, setAgent] = useState('');
-  const [activeButton, setActiveButton] = useState("today");
   const [startDate, setStartDate] = useState("");
+  const [dateRange, setDateRange] = useState([todayDate, todayDate]);
   const [endDate, setEndDate] = useState("");
   const [Ids, setIds] = useState();
   const [OrderId, setOrderId] = useState();
+  const [Price, setPrice] = useState();
+  const [activeButton, setActiveButton] = useState("");
+  const handleButtonClick = (buttonName) => {
+    setActiveButton(buttonName);
+  };
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -108,13 +127,22 @@ const PayOutOperations = () => {
     return `${year}-${month}-${day}`;
   };
 
+  const handleDateChange = (selectedDates) => {
+    setDateRange(selectedDates);
+    setStartDate(formatDate(selectedDates[0]));
+    setEndDate(formatDate(selectedDates[1]));
+    setActiveButton("custom");
+  };
+
   const fetchData = async () => {
     try {
+      setShowLoader(true);
       const orderResponse = await getAllAayoutRequests(searchTerm, currentPage, activeButton, startDate, endDate, agent);
       console.log(orderResponse, "Payout ")
       if (orderResponse?.status === 200 && orderResponse?.data?.results)
-        setCreateOrder(orderResponse?.data.results);
-      setTotalItems(orderResponse?.data?.count);
+        setShowLoader(false);
+      setCreateOrder(orderResponse?.data.results);
+      setTotalPages(Math.ceil(orderResponse.data.count / itemsPerPage));
     } catch (err) {
       console.log(err);
     }
@@ -130,24 +158,41 @@ const PayOutOperations = () => {
     setSearchTerm(value);
   };
 
-  const handleOrder = (id, orderId) => {
+  const handleOrder = (id, orderId, price) => {
     setIds(id);
-    setOrderId(orderId)
-    new bootstrap.Modal(document.getElementById('confirmedModal')).show();
+    setOrderId(orderId);
+    setPrice(price)
+    new bootstrap.Modal(document.getElementById('submittedModal')).show();
   }
 
   const handleData = (data) => {
     setupdateData(data)
-    bootstrap.Modal.getInstance(document.getElementById('confirmedModal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('submittedModal')).hide();
+  };
+
+  const handleAssignedOrder = (orderId, price) => {
+    setOrderId(orderId);
+    setPrice(price)
+    new bootstrap.Modal(document.getElementById('exampleModalLg')).show();
+  }
+
+  const handleAssignedData = (data) => {
+    setupdateData(data)
+    bootstrap.Modal.getInstance(document.getElementById('exampleModalLg')).hide();
   };
 
   return (
     <Container>
+      {
+        showLoader && (
+          <HashLoader />
+        )
+      }
       <div className="container-fluid p-lg-5 p-3">
         <Icon className='toggleBars mb-3' icon="fa6-solid:bars" width="1.5em" height="1.5em" style={{ color: '#000' }} onClick={toggleSidebar} />
         <div className="row sticky-top">
           <div className="col-md-7 col-sm-12 order-md-1 order-sm-2">
-            <p className='greyText font14 fontWeight700'>Hi Shalu,</p>
+            <p className='greyText font14 fontWeight700'>Hi {profileDetails?.username},</p>
             <p className='font32 fontWeight700'>Welcome to PayOut Operations</p>
           </div>
           <div className="col-md-5 col-sm-12 order-md-2 order-sm-1 align-self-center">
@@ -169,29 +214,63 @@ const PayOutOperations = () => {
             <div className="flex-grow-1 align-self-center">
               <ul className="nav nav-pills gap-3" id="pills-tab" role="tablist">
                 <li className="nav-item" role="presentation">
-                  <button className="nav-link active font14" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button" role="tab" aria-controls="pills-all" aria-selected="true">All</button>
+                  <button onClick={() => handleInputChange("")} className={`nav-link ${searchTerm === "" ? "active" : ""} font14`} type="button" >All</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button className="nav-link borderRadius10 font14" id="pills-newUnassigned-tab" data-bs-toggle="pill" data-bs-target="#pills-newUnassigned" type="button" role="tab" aria-controls="pills-newUnassigned" aria-selected="false">New Unassigned</button>
+                  <button onClick={() => handleInputChange("CREATED")} className={`nav-link ${searchTerm === "CREATED" ? "active" : ""} font14`} type="button" >New Unassigned</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button className="nav-link borderRadius10 font14" id="pills-pending-tab" data-bs-toggle="pill" data-bs-target="#pills-pending" type="button" role="tab" aria-controls="pills-pending" aria-selected="false">Pending</button>
+                  <button onClick={() => handleInputChange("SUBMITTED")} className={`nav-link ${searchTerm === "SUBMITTED" ? "active" : ""} font14`} type="button">Approved</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button className="nav-link borderRadius10 font14" id="pills-approved-tab" data-bs-toggle="pill" data-bs-target="#pills-approved" type="button" role="tab" aria-controls="pills-approved" aria-selected="false">Approved</button>
+                  <button onClick={() => handleInputChange("ASSIGNED")} className={`nav-link ${searchTerm === "ASSIGNED" ? "active" : ""} font14`} type="button">Assigned</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button className="nav-link borderRadius10 font14" id="pills-declined-tab" data-bs-toggle="pill" data-bs-target="#pills-declined" type="button" role="tab" aria-controls="pills-declined" aria-selected="false">Declined</button>
+                  <button onClick={() => handleInputChange("REJECTED")} className={`nav-link ${searchTerm === "REJECTED" ? "active" : ""} font14`} type="button">Rejected</button>
                 </li>
               </ul>
             </div>
-            <span className='bg-white align-self-center p-2 borderRadius10 me-2'>
-              <Icon icon="ion:filter" width="1.4em" height="1.4em" style={{ color: '#2C6DB5' }} />
-            </span>
-            <span className='bg-white align-self-center p-2 borderRadius10 textBlue font16'>
-              {todayDate}
-              <Icon className='ms-2' icon="uiw:date" width="1.1em" height="1.1em" style={{ color: '#2C6DB5' }} />
-            </span>
+            <Link className='btn borderRadius10 addNewUserBtn me-3 align-self-center' to='/createPayOutOrder'>+ Create Order</Link>
+            <div className="dropdown">
+              <button style={{ borderColor: "#0000" }} type="button" data-bs-toggle="dropdown" aria-expanded="false" className='bg-white align-self-center p-2 borderRadius10 me-2 dropdown-toggle'>
+                <Icon icon="ion:filter" width="1.4em" height="1.4em" style={{ color: '#2C6DB5' }} />
+              </button>
+              <ul className="dropdown-menu">
+                <li><a className="dropdown-item" onClick={() => handleButtonClick("")}>All</a></li>
+                <li><a className="dropdown-item" onClick={() => handleButtonClick("today")}>Today</a></li>
+                <li><a className="dropdown-item" onClick={() => handleButtonClick("yesterday")}>Yesterday</a></li>
+              </ul>
+            </div>
+            <div className="date-picker-container">
+              <Flatpickr
+                class="form-control"
+                style={
+                  activeButton === "custom"
+                    ? {
+                      background: "#1961A3",
+                      border: "1px solid #DDDDEB",
+                      color: "#fff",
+                    }
+                    : {}
+                }
+                placeholder=''
+                value={dateRange}
+                options={{
+                  mode: 'range',
+                  dateFormat: 'Y-n-j',
+                }}
+                onClick={() => handleButtonClick("custom")}
+                onChange={handleDateChange}
+                render={({ defaultValue, ...props }, ref) => (
+                  <div className="input-group">
+                    <input {...props} ref={ref} defaultValue={defaultValue} />
+                    <span className="input-group-text">
+                      <Icon icon="uiw:date" width="1.1em" height="1.1em" style={{ color: '#2C6DB5' }} />
+                    </span>
+                  </div>
+                )}
+              />
+            </div>
           </div>
         </div>
         <div className="row overflow-scroll">
@@ -228,12 +307,22 @@ const PayOutOperations = () => {
                         <div className="col-sm-10 col-11 p-sm-0 p-3 bg-white text text-center d-flex justify-content-center">
                           <div className='align-self-center'>
                             <p className='font16 text-center mb-2'>
-                              <button className={`btn ${provider?.approval_status === 'APPROVED' ? 'confirmedButton' : (provider?.approval_status === "ASSIGNED"   ? 'assigneddButton' : (provider?.approval_status === 'CREATED' ? 'submittedButton' : 'rejectedButton'))} borderRadius4 font12 text-center`}>{provider?.approval_status}</button>
+                              <button
+                                type="button"
+                                className={`btn ${provider?.approval_status === "SUBMITTED" ? 'confirmedButton' :
+                                  provider?.approval_status === 'ASSIGNED' ? 'assigneddButton' :
+                                    provider?.approval_status === 'CREATED' ? 'submittedButton' :
+                                      'rejectedButton'
+                                  } borderRadius4 font12 text-center`}
+                                onClick={() => provider?.approval_status === 'ASSIGNED' ? handleAssignedOrder(provider?.order_id, provider?.payment_amount) : null}
+                              >
+                                {provider?.approval_status}
+                              </button>
                             </p>
                             <p className='font18 text-center'>{provider?.payment_amount}</p>
                             {
                               provider?.approval_status === 'CREATED' && (
-                                <button onClick={() => handleOrder(provider?.id, provider?.order_id)} className='btn assignnButton borderRadius32 font20 mt-2' data-bs-toggle="modal" data-bs-target="#submittedModal">Assign</button>
+                                <button onClick={() => handleOrder(provider?.id, provider?.order_id, provider?.payment_amount)} className='btn assignnButton borderRadius32 font20 mt-2'>Assign</button>
                               )
                             }
                           </div>
@@ -251,6 +340,11 @@ const PayOutOperations = () => {
               )
               }
             </div>
+            <ResponsivePagination
+              current={currentPage}
+              total={totalPages}
+              onPageChange={setCurrentPage}
+            />
             <div className="tab-pane fade" id="pills-newUnassigned" role="tabpanel" aria-labelledby="pills-newUnassigned-tab" tabIndex="0">
             </div>
             <div className="tab-pane fade" id="pills-pending" role="tabpanel" aria-labelledby="pills-pending-tab" tabIndex="0">
@@ -266,36 +360,29 @@ const PayOutOperations = () => {
 
       {/* Submitted Modal */}
 
+      <div class="modal fade" id="exampleModalLg" tabindex="-1" aria-labelledby="exampleModalLgLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-body">
+              <AssignedOrder OrderId={OrderId} Price={Price} onData={handleData} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+
       <div className="modal fade" id="submittedModal" tabIndex="-1" aria-labelledby="submittedModalLabel" aria-hidden="true">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-body p-2">
-              <SubmittedPays Ids={Ids} OrderId={OrderId}  onData={handleData} />
+              <SubmittedPays Ids={Ids} OrderId={OrderId} Price={Price} onData={handleData} />
             </div>
           </div>
         </div>
       </div>
 
 
-      {/* Assign Modal */}
 
-      <div className="modal fade" id="assignModal" tabIndex="-1" aria-labelledby="assignModalLabel" aria-hidden="true">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div className="modal-body">
-              ...
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" className="btn btn-primary">Save changes</button>
-            </div>
-          </div>
-        </div>
-      </div>
 
 
     </Container >
