@@ -302,7 +302,6 @@ const PayOutOperations = () => {
                           </div>
                         </div>
                       </div>
-
                       <div className="col-sm-2 col-12 d-flex p-0">
                         <div className="col-sm-10 col-11 p-sm-0 p-3 bg-white text text-center d-flex justify-content-center">
                           <div className='align-self-center'>

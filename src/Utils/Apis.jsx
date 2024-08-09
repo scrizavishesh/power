@@ -363,6 +363,17 @@ export const approvePayout = async (id, data) => {
   }
 }
 
+export const graphData = async (year, type) => {
+  axios.defaults.headers.common["Authorization"] = bearerToken;
+
+  var response = await axios.get(`${API_URL}/api/graph-statistics/?year=${year}&transaction_type=${type}`,);
+  if (response) {
+    return response;
+  } else {
+    return [];
+  }
+}
+
 
 
 

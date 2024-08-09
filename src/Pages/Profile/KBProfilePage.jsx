@@ -330,7 +330,7 @@ const KBProfilePage = () => {
         formData.append("username", username);
         formData.append("name", name);
         formData.append("email", email);
-        formData.append("phoneNumber", phoneNumber);
+        formData.append("phone_number", phoneNumber);
         formData.append("is_checked_in", statu);
         formData.append("upi_id", upi);
         formData.append("IFSC", ifsc);

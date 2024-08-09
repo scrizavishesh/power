@@ -72,6 +72,8 @@ const AdminDashboard = ({ lightMode }) => {
   const dispatch = useDispatch();
   const { users, status, error } = useSelector(state => state.users);
   const [profileDetails, setprofileDetails] = useState(users[0]);
+  const [year, setYear] = useState(2024);
+  const [type, setType] = useState('payin')
   
   const [showLoader, setShowLoader] = useState(false);
   
@@ -97,6 +99,14 @@ const AdminDashboard = ({ lightMode }) => {
     dispatch(fetchUsers());
     fetchData();
   }, [dispatch]);
+
+  const handleType = (value) => {
+    setType(value)
+  }
+
+  const handleyear = (value) => {
+    setYear(value)
+  }
 
 
 
@@ -179,23 +189,23 @@ const AdminDashboard = ({ lightMode }) => {
             </div>
             <div className="d-flex align-self-center">
               {/* <Icon icon="lets-icons:date-fill" width="1.5em" height="1.5em"  style={{color: '#2C6DB5'}} /> */}
-              <select className={`form-select font12 borderRadius8 cardBlueText me-3 pointer bg-white`} aria-label="Default select example">
+              <select className={`form-select font12 borderRadius8 cardBlueText me-3 pointer bg-white`} onChange={(e) => handleType(e.target.value)} aria-label="Default select example">
                 <option disbaled="true">--Choose--</option>
-                <option defaultValue value="PayIn">PayIn</option>
-                <option value="PayOut">PayOut</option>
+                <option defaultValue value="payin">PayIn</option>
+                <option value="payout">PayOut</option>
               </select>
-              <select className={`form-select font12 borderRadius8 cardBlueText me-3 pointer bg-white`} aria-label="Default select example">
+              {/* <select className={`form-select font12 borderRadius8 cardBlueText me-3 pointer bg-white`} aria-label="Default select example">
                 <option disbaled="true">--Choose--</option>
                 <option value="Daily">Daily</option>
                 <option defaultValue value="Monthly">Monthly</option>
                 <option value="Weekly">Weekly</option>
                 <option value="Yearly">Yearly</option>
-              </select>
+              </select> */}
               <span className='pointer'><Icon icon="bi:three-dots" width="1.5em" height="1.5em" style={{ color: '#2C6DB5' }} /></span>
             </div>
           </div>
           <div className={`${lightMode ? 'bg-white' : 'bgGrey'} p-4 borderRadius8`}>
-            <AreaChart lightMode={lightMode} />
+            <AreaChart year={year} type= {type} lightMode={lightMode} />
           </div>
         </div>
       </div>
