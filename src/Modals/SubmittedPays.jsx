@@ -41,17 +41,18 @@ const SubmittedPays = ({ Ids, OrderId, Price, onData }) => {
 
     const [userOnine, setuserOnine] = useState();
     const [showLoader, setShowLoader] = useState(false);
-    const [userId, setuserId] = useState('')
+    const [userId, setuserId] = useState('');
+    const [userName, setuserName] = useState('')
+    // const [userId, setuserId] = useState(secnd)
 
     const fetchData = async () => {
         try {
             setShowLoader(true);
             const orderResponse = await onlineUser(Ids);
             console.log(orderResponse, "Onlin euSers")
-            if (orderResponse?.status === 200 && orderResponse?.data)
+            if (orderResponse?.status === 200)
             setShowLoader(false);
-                setuserOnine(orderResponse?.data);
-            onData(true);
+            setuserOnine(orderResponse?.data);
         } catch (err) {
             console.log(err);
         }
@@ -95,12 +96,14 @@ const SubmittedPays = ({ Ids, OrderId, Price, onData }) => {
             console.log(response, "Asssign")
             if (response?.status === 200) {
                 setShowLoader(false);
+                onData(true);
             }
         } catch (err) {
             console.log(err);
             toast.error(err?.response?.data?.non_field_errors[0])
         }
     };
+
 
 
     return (
@@ -137,10 +140,6 @@ const SubmittedPays = ({ Ids, OrderId, Price, onData }) => {
                                             <td className='font12 align-middle lineHeight24'>{provider?.name}</td>
                                             <td className='font12 align-middle lineHeight24 greenText'>{role} </td>
                                             <td className='font12 align-middle lineHeight24'>{provider?.upi_id}</td>
-                                            {/* <td className='font12 lineHeight24 align-middle'>
-                                                <Icon className='me-2' icon="pepicons-pencil:circle-filled" width="1.4em" height="1.4em" style={{ color: '#22C55D' }} />
-                                                <span>Active</span>
-                                            </td> */}
                                             <td className='font12 lineHeight24 align-middle'>
                                                 <Icon
                                                     className='me-2'
@@ -169,6 +168,8 @@ const SubmittedPays = ({ Ids, OrderId, Price, onData }) => {
                     </table>
                 </div>
             </div>
+
+
         </Container>
     )
 }

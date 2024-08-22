@@ -8,7 +8,7 @@ var bearerToken = `Token ${localStorage.getItem("token")}`
 export const Loginuse = async (requestData) => {
   axios.defaults.headers.common["Authorization"] = "";
 
-  var response = await axios.post(`${API_URL}/api-token-auth/`, requestData);
+  var response = await axios.post(`${API_URL}/api/api-token-auth/`, requestData);
   if (response) {
     return response;
   } else {

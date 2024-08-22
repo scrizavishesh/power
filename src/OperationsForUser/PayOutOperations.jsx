@@ -8,7 +8,7 @@ import { getAllAayoutRequests } from '../Utils/Apis';
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/light.css";
 import AssignedOrder from '../Modals/AssignedOrder';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import HashLoader from '../Dashboard/Loader';
 import ResponsivePagination from 'react-responsive-pagination';
 import 'react-responsive-pagination/themes/classic.css';
@@ -86,6 +86,8 @@ const Container = styled.div`
 
 const PayOutOperations = () => {
 
+  const { id } = useParams();
+
   const { toggleSidebar } = useMainContext();
 
   const todayDate = format(new Date(), 'dd/MM/yyyy');
@@ -137,7 +139,7 @@ const PayOutOperations = () => {
   const fetchData = async () => {
     try {
       setShowLoader(true);
-      const orderResponse = await getAllAayoutRequests(searchTerm, currentPage, activeButton, startDate, endDate, agent);
+      const orderResponse = await getAllAayoutRequests(searchTerm, currentPage, activeButton, startDate, endDate, id);
       console.log(orderResponse, "Payout ")
       if (orderResponse?.status === 200 && orderResponse?.data?.results)
         setShowLoader(false);

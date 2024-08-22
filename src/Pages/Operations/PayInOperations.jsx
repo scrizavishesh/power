@@ -381,11 +381,11 @@ const PayInOperations = () => {
                               </td>
                               <td className='font14 align-middle lineHeight24'>
                                 <div className="d-flex">
-                                  <button onClick={() => handleOrder(provider?.id)} className='btn approveButton me-3 align-self-center' type='button'>Approve</button>
-                                  <div className="dropdown align-self-center">
-                                    <span className="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    </span>
-                                  </div>
+                                  {
+                                    provider?.approval_status !== 'APPROVED'  && (
+                                      <button onClick={() => handleOrder(provider?.id)} className='btn approveButton me-3 align-self-center' type='button'>Approve</button>
+                                    )
+                                  }
                                 </div>
                               </td>
                             </tr>
@@ -400,13 +400,13 @@ const PayInOperations = () => {
                       )}
                     </tbody>
                   </table>
-                  
+
                 </div>
                 <ResponsivePagination
-                current={currentPage}
-                total={totalPages}
-                onPageChange={setCurrentPage}
-              />
+                  current={currentPage}
+                  total={totalPages}
+                  onPageChange={setCurrentPage}
+                />
               </div>
               <div className="tab-pane fade" id="pills-pending" role="tabpanel" aria-labelledby="pills-pending-tab" tabIndex="0">
               </div>

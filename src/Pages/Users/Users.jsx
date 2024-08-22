@@ -9,6 +9,7 @@ import ResponsivePagination from 'react-responsive-pagination';
 import 'react-responsive-pagination/themes/classic.css';
 import HashLoader from '../../Dashboard/Loader';
 import { useDispatch, useSelector } from 'react-redux';
+import  AccountConfirm  from '../../Modals/AccountConfirm'
 
 const Container = styled.div`
 
@@ -106,7 +107,10 @@ const Users = () => {
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 10;
 
-  const [statu, setStatus] = useState('')
+  const [statu, setStatus] = useState('');
+  const [Ids, setIds] = useState('');
+  const [UpdateStatus, setUpdateStatus] = useState('');
+  const [updateData, setupdateData] = useState(false);
 
 
   // const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
@@ -116,7 +120,7 @@ const Users = () => {
 
   useEffect(() => {
     getEmployess();
-  }, [currentPage, searchTerm, role, statu]);
+  }, [currentPage, searchTerm, role, statu, updateData]);
 
   // Handle input change
   const handleInputChange = (value) => {
@@ -153,7 +157,28 @@ const Users = () => {
     return "No Role Assigned";
   };
 
-  const getStatus = (isCheckedIn) => {
+
+  const timeAgo = (timestamp) => {
+    const currentTime = new Date();
+    const lastActiveTime = new Date(timestamp);
+
+    const diff = currentTime - lastActiveTime; 
+    const diffInMinutes = Math.floor(diff / 60000);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+
+    if (diffInMinutes < 60) {
+      return `Last active ${diffInMinutes}m ago`;
+    } else if (diffInMinutes < 1440) {
+      const minutes = diffInMinutes % 60;
+      return `Last active ${diffInHours}h ${minutes}m ago`;
+    } else {
+      const days = Math.floor(diffInHours / 24);
+      const hours = diffInHours % 24;
+      return `Last active ${days}d ${hours}h ago`;
+    }
+  };
+
+  const getStatus = (isCheckedIn, last_check_in) => {
     if (isCheckedIn) {
       return {
         color: '#22C55D',
@@ -162,7 +187,7 @@ const Users = () => {
     } else {
       return {
         color: '#FC2222',
-        text: 'Inactive'
+        text: timeAgo(last_check_in)
       };
     }
   };
@@ -173,7 +198,10 @@ const Users = () => {
 
   const handleNavigate = (id, update) => {
     if (update) {
-      userUpdate(id, update);
+      setIds(id);
+      setUpdateStatus(update)
+      new bootstrap.Modal(document.getElementById('confirmedModal')).show();
+      // userUpdate(id, update);
     } else {
       navigate(`/kBProfilePage/${id}`);
     }
@@ -181,7 +209,6 @@ const Users = () => {
 
 
   const userUpdate = async (id, update) => {
-
     const formData = new FormData();
     formData.append("is_checked_in", update);
     try {
@@ -203,6 +230,11 @@ const Users = () => {
 
   const handleStatus = (value) => {
     setStatus(value);
+  };
+
+  const handleData = (data) => {
+    setupdateData(data)
+    bootstrap.Modal.getInstance(document.getElementById('confirmedModal')).hide();
   };
 
 
@@ -290,7 +322,7 @@ const Users = () => {
                   {Employees?.length !== 0 ? (
                     Employees?.map((employ) => {
                       const role = getRole(employ);
-                      const statu = getStatus(employ.is_checked_in);
+                      const statu = getStatus(employ.is_checked_in, employ?.last_check_in);
                       return (
                         <tr onClick={(e) => handleNavigate(employ?.id)}>
                           <td className='font14 lineHeight24 align-middle'>{employ?.username}</td>
@@ -353,6 +385,23 @@ const Users = () => {
           </div>
         </div>
       </div>
+
+
+      <div className="modal fade" id="confirmedModal" tabIndex="-1" aria-labelledby="confirmedModalLabel" aria-hidden="true">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-body p-1">
+              {
+                Ids && (
+                  <AccountConfirm Ids={Ids} UpdateStatus={UpdateStatus} onData={handleData} />
+                )
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+
     </Container>
   )
 }

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Icon } from '@iconify/react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useMainContext } from '../Dashboard/DashboardLayout';
 import 'bootstrap/dist/css/bootstrap.min.css';  // npm install bootstrap
 import { useDispatch, useSelector } from 'react-redux';
@@ -62,12 +62,13 @@ const Container = styled.div`
 
         &:hover {
             color: #000;
-            background-color: ${(props) => (props.lightmode ? 'var(--sidebarActiveColor)' : '#a4a4a4')};
+            background-color:var(--sidebarActiveColor)
+             /* ${(props) => (props.lightmode ? 'var(--sidebarActiveColor)' : '#a4a4a4')}; */
         }
 
         &.active {
             color: #000;
-            background-color: ${(props) => (props.lightmode ? 'var(--sidebarActiveColor)' : '#a4a4a4')};
+            background-color:var(--sidebarActiveColor)
         }
 
         .menu-text {
@@ -149,9 +150,10 @@ const ToggleIcon = styled(Icon)`
 
 const Sidebar = ({ lightmode, setlightmode }) => {
 
+    const token = localStorage.getItem('token')
     const { sidebaropen, toggleSidebar } = useMainContext();
     const dispatch = useDispatch();
-    const [showLoader, setShowLoader] = useState(false)
+    const [, setShowLoader] = useState(false)
     const { users, status, error } = useSelector(state => state.users);
     const [profileDetails, setprofileDetails] = useState(users[0]);
 
@@ -164,13 +166,26 @@ const Sidebar = ({ lightmode, setlightmode }) => {
     };
 
     const role = getRole();
-    console.log(role, "role");
 
-    const [activeLink, setActiveLink] = useState('dashboard');
+    const location = useLocation();
+
+    const [activeLink, setActiveLink] = useState(() => {
+        const currentPath = location.pathname === '/' ? 'dashboard' : location.pathname.slice(1);
+        localStorage.setItem('activeLink', currentPath);
+        return currentPath;
+    });
+
+    useEffect(() => {
+        const currentPath = location.pathname === '/' ? 'dashboard' : location.pathname.slice(1);
+        setActiveLink(currentPath);
+        localStorage.setItem('activeLink', currentPath);
+    }, [token, location.pathname]);
 
     const handleActiveLink = (link) => {
         setActiveLink(link);
+        localStorage.setItem('activeLink', link);
     };
+
 
     useEffect(() => {
         dispatch(fetchUsers());
@@ -192,26 +207,26 @@ const Sidebar = ({ lightmode, setlightmode }) => {
                         <ul className={`list-unstyled ${sidebaropen ? 'p-3' : 'p-2'}`}>
                             <li className={`greyText ${sidebaropen ? 'ps-3 pt-3' : "ps-3 pt-3"}`}><h3 className="font14 menu-text mb-0"> MAIN</h3></li>
                             <li className='p-2'>
-                                <Link to="/" className={`menus p-2 rounded-3 ${activeLink === '/' ? 'active' : ''}`} onClick={() => handleActiveLink('dashboard')} >
+                                <Link to="/" className={`menus p-2 rounded-3 ${activeLink === 'dashboard' ? 'active' : ''}`} onClick={() => handleActiveLink('dashboard')} >
                                     <Icon icon="uil:home-alt" width="1.5em" height="1.2em" />
                                     <h3 className="font14 menu-text mb-0">Dashboard</h3>
                                 </Link>
                             </li>
                             <li className='p-2'>
-                                <Link to="/payInOperations" className={`menus p-2 rounded-3 ${activeLink === 'payin' || activeLink === 'payout' ? 'active' : ''}`} onClick={() => { handleActiveLink('payin'), setOperationShow }} data-bs-toggle="collapse" data-bs-target="#collapseOperations" >
+                                <Link to="/payInOperations" className={`menus p-2 rounded-3 ${activeLink === 'payInOperations' || activeLink === 'payOutOperations' ? 'active' : ''}`} onClick={() => { handleActiveLink('payInOperations'), setOperationShow }} data-bs-toggle="collapse" data-bs-target="#collapseOperations" >
                                     <Icon icon="tabler:chart-bar-popular" width="1.5em" height="1.2em" />
                                     <h3 className="font14 menu-text mb-0">Operations</h3>
                                 </Link>
                                 <div id="collapseOperations" className="collapse collapse-menu pt-1">
                                     <ul className='list-unstyled border-left'>
                                         <li className='p-1'>
-                                            <Link to="/payInOperations" className={`menus p-2 rounded-3 ${activeLink === 'payin' ? 'active' : ''}`} onClick={() => handleActiveLink('payin')} >
+                                            <Link to="/payInOperations" className={`menus p-2 rounded-3 ${activeLink === 'payInOperations' ? 'active' : ''}`} onClick={() => handleActiveLink('payInOperations')} >
                                                 {/* <Icon icon="uil:home-alt" width="1.5em" height="1.2em" /> */}
                                                 <h3 className="font14 menu-text mb-0">Pay In</h3>
                                             </Link>
                                         </li>
                                         <li className='p-1'>
-                                            <Link to="/payOutOperations" className={`menus p-2 rounded-3 ${activeLink === 'payout' ? 'active' : ''}`} onClick={() => handleActiveLink('payout')} >
+                                            <Link to="/payOutOperations" className={`menus p-2 rounded-3 ${activeLink === 'payOutOperations' ? 'active' : ''}`} onClick={() => handleActiveLink('payOutOperations')} >
                                                 {/* <Icon icon="uil:home-alt" width="1.5em" height="1.2em" /> */}
                                                 <h3 className="font14 menu-text mb-0">Pay Out</h3>
                                             </Link>
@@ -231,14 +246,14 @@ const Sidebar = ({ lightmode, setlightmode }) => {
                             }
 
                             <li className='p-2'>
-                                <Link to="/saved_reports" className={`menus p-2 rounded-3 ${activeLink === 'saved_reports' ? 'active' : ''}`} onClick={() => handleActiveLink('dash3')} >
+                                <Link to="/saved_reports" className={`menus p-2 rounded-3 ${activeLink === 'saved_reports' ? 'active' : ''}`} onClick={() => handleActiveLink('saved_reports')} >
                                     <Icon icon="iconoir:page" width="1.5em" height="1.2em" />
                                     <h3 className="font14 menu-text mb-0">Saved Reports</h3>
                                 </Link>
                             </li>
                             <li className={`greyText ${sidebaropen ? 'ps-3 pt-3' : "ps- pt-3"}`}><h3 className="font14 menu-text mb-0"> SETTINGS</h3></li>
                             <li className='p-2'>
-                                <Link to="/manageUTR" className={`menus p-2 rounded-3 ${activeLink === ' manageUTR' ? 'active' : ''}`} onClick={() => handleActiveLink('dash4')} >
+                                <Link to="/manageUTR" className={`menus p-2 rounded-3 ${activeLink === ' manageUTR' ? 'active' : ''}`} onClick={() => handleActiveLink('manageUTR')} >
                                     <Icon icon="lucide:bell" width="1.5em" height="1.2em" />
                                     <h3 className="font14 menu-text mb-0">Manage</h3>
                                 </Link>
@@ -257,7 +272,7 @@ const Sidebar = ({ lightmode, setlightmode }) => {
                                             </Link>
                                         </li>
                                         <li className='p-1'>
-                                            <Link to="/dash" className={`menus p-2 rounded-3 ${activeLink === 'Settings2' ? 'active' : ''}`} onClick={() => handleActiveLink('Settings2')} >
+                                            <Link to="/Settings2" className={`menus p-2 rounded-3 ${activeLink === 'Settings2' ? 'active' : ''}`} onClick={() => handleActiveLink('Settings2')} >
                                                 {/* <Icon icon="uil:home-alt" width="1.5em" height="1.2em" /> */}
                                                 <h3 className="font14 menu-text mb-0">Pay Out</h3>
                                             </Link>

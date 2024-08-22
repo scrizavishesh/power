@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Icon } from '@iconify/react';
 import styled from 'styled-components'
 import { useMainContext } from '../../Dashboard/DashboardLayout';
-import { getDashStatics, userProfile } from '../../Utils/Apis';
+import { getDashStatics } from '../../Utils/Apis';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import HashLoader from '../../Dashboard/Loader';
