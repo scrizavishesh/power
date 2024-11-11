@@ -186,7 +186,6 @@ const Index = () => {
 
 
     const userUpdate = async (id, update) => {
-
         const formData = new FormData();
         formData.append("is_checked_in", update);
         try {

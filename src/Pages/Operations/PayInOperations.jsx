@@ -141,9 +141,6 @@ const PayInOperations = () => {
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 10;
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAgents, setShowAgents] = useState([]);
-  const [currentpage, setcurrentpage] = useState('');
-  const [csvData, setCsvData] = useState([]);
   const [agent, setAgent] = useState('');
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -153,10 +150,6 @@ const PayInOperations = () => {
   const handleButtonClick = (buttonName) => {
     setActiveButton(buttonName);
   };
-
-
-
-  // const handleAgent = (value) => setAgent(value);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);

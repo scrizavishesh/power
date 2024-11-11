@@ -365,7 +365,7 @@ const PayOutOperations = () => {
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-body">
-              <AssignedOrder OrderId={OrderId} Price={Price} onData={handleData} />
+              <AssignedOrder OrderId={OrderId} Price={Price} onData={handleAssignedData} />
             </div>
           </div>
         </div>

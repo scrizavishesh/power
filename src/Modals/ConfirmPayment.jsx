@@ -99,6 +99,8 @@ const ConfirmPayment = ({ OrdersIds, onData }) => {
             formData.append('utr', utr);
             formData.append("approval_status", "APPROVED");
             formData.append("remark", remark);
+            formData.append("callback_url", "https://pay-sb1.ddtechlabs.com/powerpay/result?id=2");
+            
             try {
                 setShowLoader(true);
                 const response = await Orderapproval(formData, Orders?.agent, Orders?.order_id);

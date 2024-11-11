@@ -179,3 +179,77 @@ p{
 /* .modal-backdrop {
   z-index: -1;
 } */
+
+
+
+.payment-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f7f7f7;
+}
+
+.payment-card {
+  width: 100%;
+  max-width: 400px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+}
+
+.payment-header h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.payment-body {
+  margin-top: 20px;
+}
+
+.qr-code {
+  width: 200px;
+  margin: 20px 0;
+}
+
+.warning-text {
+  color: red;
+  font-size: 14px;
+}
+
+.payment-footer {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.pay-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pay-btn.google {
+  background-color: #4285f4;
+  color: white;
+}
+
+.pay-btn.phonepe {
+  background-color: #5d57d6;
+  color: white;
+}
+
+.pay-btn.paytm {
+  background-color: #00baf2;
+  color: white;
+}
+
+.pay-btn:hover {
+  opacity: 0.8;
+}

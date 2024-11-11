@@ -153,7 +153,6 @@ const Sidebar = ({ lightmode, setlightmode }) => {
     const token = localStorage.getItem('token')
     const { sidebaropen, toggleSidebar } = useMainContext();
     const dispatch = useDispatch();
-    const [, setShowLoader] = useState(false)
     const { users, status, error } = useSelector(state => state.users);
     const [profileDetails, setprofileDetails] = useState(users[0]);
 
@@ -166,6 +165,12 @@ const Sidebar = ({ lightmode, setlightmode }) => {
     };
 
     const role = getRole();
+
+    useEffect(() => {
+        dispatch(fetchUsers());
+        getRole();
+        console.log(role, "role");
+    }, [dispatch]);
 
     const location = useLocation();
 
@@ -187,11 +192,7 @@ const Sidebar = ({ lightmode, setlightmode }) => {
     };
 
 
-    useEffect(() => {
-        dispatch(fetchUsers());
-        getRole();
-        console.log(role, "role");
-    }, [dispatch]);
+
 
     return (
         <Container lightmode={lightmode} setlightmode={setlightmode} sidebaropen={sidebaropen}>

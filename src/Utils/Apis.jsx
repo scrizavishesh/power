@@ -37,15 +37,12 @@ export const userProfile = async () => {
 }
 
 
-export const createOrder = async (requestData) => {
+export const createOrder = async (requestData, hmac) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
-  var response = await axios.post(`${API_URL}/api/orders/`, requestData);
-  if (response) {
-    return response;
-  } else {
-    return [];
-  }
-}
+  axios.defaults.headers.common["Sign"] = hmac; // Include HMAC in headers
+  const response = await axios.post(`${API_URL}/api/orders/`, requestData);
+  return response;
+};
 
 export const createOrderForPayout = async (requestData) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
@@ -138,9 +135,9 @@ export const getAgentsById = async (id) => {
   }
 }
 
-export const createFund = async (requestData, orderId, recId, id) => {
+export const createFund = async ( orderId, recId, id, amount) => {
   axios.defaults.headers.common["Authorization"] = "";
-  var response = await axios.post(`${API_URL}/api/payments/create?order_id=${orderId}&receipt_id=${recId}&id=${id}`, requestData);
+  var response = await axios.get(`${API_URL}/api/payments/create?order_id=${orderId}&receipt_id=${recId}&id=${id}&amount=${amount}`,);
   if (response) {
     return response;
   } else {
@@ -229,7 +226,7 @@ export const CheckOutAgent = async () => {
 export const DownloadOrders = async (start_Date, end_date, id) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
 
-  var response = await axios.get(`${API_URL}/api/orders/download-orders/?start_date=${start_Date}&end_date=${end_date}&agent_id=`,);
+  var response = await axios.get(`${API_URL}/api/orders/download-orders/?start_date=${start_Date}&end_date=${end_date}&type=PAYIN`,);
   if (response) {
     return response;
   } else {
