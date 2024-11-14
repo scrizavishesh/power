@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
-import Navbar from '../Layouts/Navbar';
 import Sidebar from '../Layouts/Sidebar';
 import Main from '../Main/Main';
-import { useDispatch, useSelector } from 'react-redux';
 
 const Container = styled.div`
     display: flex;

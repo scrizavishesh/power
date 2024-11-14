@@ -55,27 +55,29 @@ const AccountConfirm = ({ Ids, UpdateStatus, onData }) => {
 
     
     const [showLoader, setShowLoader] = useState(false);
-    
-    console.log(UpdateStatus, showLoader);
 
     const userUpdate = async () => {
-        const formData = new FormData();
-        formData.append("is_checked_in", UpdateStatus);
         try {
             setShowLoader(true);
-            const response = await updateUserbyId(Ids, formData);
+            const response = await updateUserbyId(Ids);
             console.log(response, "user update successfully")
             if (response.status === 200) {
-                setShowLoader(false);
-                toast.success("user update successfully");
-                // setchangeState(false);
                 onData(true);
+                setShowLoader(false);
+                toast.success("user update successfully"); 
             }
         } catch (err) {
             console.log(err);
             toast.error(err?.response?.data?.username[0]);
         }
     };
+
+    useEffect(() => {
+        return () => {
+            // Cleanup function to reset showLoader when modal is closed
+            setShowLoader(false);
+        };
+    }, [Ids, UpdateStatus]);
 
 
     return (
@@ -91,7 +93,7 @@ const AccountConfirm = ({ Ids, UpdateStatus, onData }) => {
                         <h4>Are you sure?</h4>
                         <p >Are you sure you would like to
                             <br />
-                            <b>{UpdateStatus ==='true' ? 'Active' : 'Inactive'}</b> this account?
+                            <b>{UpdateStatus ==='true' ? 'Block' : 'UnBlock'}</b> this account?
                             </p>
                     </div>
                 </div>

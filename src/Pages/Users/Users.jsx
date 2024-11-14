@@ -9,7 +9,7 @@ import ResponsivePagination from 'react-responsive-pagination';
 import 'react-responsive-pagination/themes/classic.css';
 import HashLoader from '../../Dashboard/Loader';
 import { useDispatch, useSelector } from 'react-redux';
-import  AccountConfirm  from '../../Modals/AccountConfirm'
+import AccountConfirm from '../../Modals/AccountConfirm'
 
 const Container = styled.div`
 
@@ -101,8 +101,7 @@ const Users = () => {
 
   const [Employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [role, setRole] = useState('')
-  const [csvData, setCsvData] = useState([]);
+  const [role, setRole] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 10;
@@ -111,6 +110,7 @@ const Users = () => {
   const [Ids, setIds] = useState('');
   const [UpdateStatus, setUpdateStatus] = useState('');
   const [updateData, setupdateData] = useState(false);
+  console.log(updateData, "update data")
 
 
   // const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
@@ -138,7 +138,6 @@ const Users = () => {
     try {
       if (response?.status === 200) {
         setShowLoader(false);
-        toast.success("Gets all users successfully");
         setEmployees(response?.data?.results);
         setTotalPages(Math.ceil(response.data.count / itemsPerPage));
       } else {
@@ -162,7 +161,7 @@ const Users = () => {
     const currentTime = new Date();
     const lastActiveTime = new Date(timestamp);
 
-    const diff = currentTime - lastActiveTime; 
+    const diff = currentTime - lastActiveTime;
     const diffInMinutes = Math.floor(diff / 60000);
     const diffInHours = Math.floor(diffInMinutes / 60);
 
@@ -201,7 +200,7 @@ const Users = () => {
       setIds(id);
       setUpdateStatus(update)
       new bootstrap.Modal(document.getElementById('confirmedModal')).show();
-      // userUpdate(id, update);
+      setupdateData(false);
     } else {
       navigate(`/kBProfilePage/${id}`);
     }
@@ -233,9 +232,11 @@ const Users = () => {
   };
 
   const handleData = (data) => {
-    setupdateData(data)
+    setupdateData(data);  // Update the main state
+    setIds(null);  // Reset Ids
+    setUpdateStatus('');  // Reset UpdateStatus
     bootstrap.Modal.getInstance(document.getElementById('confirmedModal')).hide();
-  };
+};
 
 
 
@@ -296,7 +297,7 @@ const Users = () => {
                 <option value=''>-- Choose --</option>
                 <option value="superadmin">Super Admin</option>
                 <option value="admin">Admin</option>
-                <option value="subadmin">Sub Admin</option>
+                <option value="creator">Sub Admin</option>
                 <option value="agent">Peer</option>
               </select>
               <span className='borderRadius8 addNewUserBtn p-1'>
@@ -314,7 +315,7 @@ const Users = () => {
                     <td className='font16 lineHeight21'>Name</td>
                     <td className='font16 lineHeight21'>Role</td>
                     <td className='font16 lineHeight21'>User UPI ID</td>
-                    <td className='font16 lineHeight21'>Active status</td>
+                    <td className='font16 lineHeight21'>Status</td>
                     <td className='font16 lineHeight21'>Action</td>
                   </tr>
                 </thead>
@@ -322,7 +323,6 @@ const Users = () => {
                   {Employees?.length !== 0 ? (
                     Employees?.map((employ) => {
                       const role = getRole(employ);
-                      const statu = getStatus(employ.is_checked_in, employ?.last_check_in);
                       return (
                         <tr onClick={(e) => handleNavigate(employ?.id)}>
                           <td className='font14 lineHeight24 align-middle'>{employ?.username}</td>
@@ -334,15 +334,15 @@ const Users = () => {
                               icon="pepicons-pencil:circle-filled"
                               width="1.4em"
                               height="1.4em"
-                              style={{ color: statu.color }}
+                              style={{ color: `${employ?.is_blocked === false ? '#22C55D' : '#FC2222'}` }}
                             />
-                            <span>{statu.text}</span>
+                            <span>{employ?.is_blocked === false ? 'UnBlock' : 'Block'}</span>
                           </td>
                           <td className='font14 lineHeight24 align-middle d-flex'>
                             <div
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleNavigate(employ?.id, `${statu.text === 'Active' ? false : true}`);
+                                handleNavigate(employ?.id, `${employ?.is_blocked === true ? false : true}`);
                               }}
                               type='button'
                               className="flex-grow-1"
@@ -352,10 +352,10 @@ const Users = () => {
                                 icon="icomoon-free:radio-unchecked"
                                 width="1em"
                                 height="1em"
-                                style={{ color: `${statu.text === 'Active' ? '#FC2222' : '#22C55D'}` }}
+                                style={{ color: `${employ?.is_blocked === false ? '#FC2222' : '#22C55D'}` }}
                               />
-                              <span className={`${statu.text === 'Active' ? 'textInactive' : 'textActive'}`}>
-                                Mark {statu.text === 'Active' ? 'Inactive' : 'Active'}
+                              <span className={`${employ?.is_blocked === false ? 'textInactive' : 'textActive'}`}>
+                                Mark {employ?.is_blocked === false ? 'Block' : 'UnBlock'}
                               </span>
                             </div>
                           </td>

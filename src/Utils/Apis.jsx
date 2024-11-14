@@ -44,8 +44,9 @@ export const createOrder = async (requestData, hmac) => {
   return response;
 };
 
-export const createOrderForPayout = async (requestData) => {
+export const createOrderForPayout = async (requestData, hmac) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
+  axios.defaults.headers.common["Sign"] = hmac; 
   var response = await axios.post(`${API_URL}/api/payout/create/`, requestData);
   if (response) {
     return response;
@@ -54,9 +55,9 @@ export const createOrderForPayout = async (requestData) => {
   }
 }
 
-export const getAllOrders = async (searchData, pageNo, day, startDate, endDate, agent) => {
+export const getAllOrders = async (searchData, pageNo, day, startDate, endDate, agent, Status) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
-  var response = await axios.get(`${API_URL}/api/orders/?page=${pageNo}&search=${searchData}&date_filter=${day}&start_date=${startDate}&end_date=${endDate}&agent_id=${agent}`,);
+  var response = await axios.get(`${API_URL}/api/orders/?page=${pageNo}&search=${searchData}&date_filter=${day}&start_date=${startDate}&end_date=${endDate}&agent_id=${agent}&approval_status=${Status}`,);
   if (response) {
     return response;
   } else {
@@ -295,10 +296,10 @@ export const getPerticualrProfile = async (id) => {
   }
 }
 
-export const updateUserbyId = async (id, data) => {
+export const updateUserbyId = async (id) => {
   // axios.defaults.headers.common["Authorization"] = bearerToken;
   // var response = await axios.patch(`${API_URL}/api/users/${id}/`, data);
-  const response = await axios.patch(`${API_URL}/api/users/${id}/`, data, {
+  const response = await axios.post(`${API_URL}/api/users/${id}/block-unblock/`,'', {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': bearerToken, // If needed

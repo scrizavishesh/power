@@ -583,7 +583,9 @@ const CreateUsers = () => {
                                         >
                                             <option value='' disabled>-- Choose --</option>
                                             <option value="admin">Admin</option>
+                                            <option value="creator">Sub Admin</option>
                                             <option value="agent">Peer</option>
+                                            
                                         </select>
 
                                         {selectedRoleIsRequiredError && (

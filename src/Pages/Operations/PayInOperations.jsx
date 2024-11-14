@@ -147,6 +147,7 @@ const PayInOperations = () => {
   const [dateRange, setDateRange] = useState([todayDate, todayDate]);
   const [OrdersIds, setOrdersIds] = useState()
   const [activeButton, setActiveButton] = useState("");
+  const [Status, setStatus] = useState('')
   const handleButtonClick = (buttonName) => {
     setActiveButton(buttonName);
   };
@@ -194,7 +195,7 @@ const PayInOperations = () => {
   const fetchData = async () => {
     try {
       setShowLoader(true);
-      const orderResponse = await getAllOrders(searchTerm, currentPage, activeButton, startDate, endDate, agent);
+      const orderResponse = await getAllOrders(searchTerm, currentPage, activeButton, startDate, endDate, agent, Status);
       console.log(orderResponse)
       if (orderResponse?.status === 200 && orderResponse?.data?.results)
         setShowLoader(false);
@@ -214,7 +215,12 @@ const PayInOperations = () => {
 
   useEffect(() => {
     fetchData();
-  }, [searchTerm, currentPage, agent, activeButton, startDate, endDate, updateData]);
+  }, [searchTerm, currentPage, agent, activeButton, startDate, endDate, updateData, Status]);
+
+
+  const handleStatus = (value) => {
+    setStatus(value)
+  }
 
 
   // Handle input change
@@ -265,16 +271,16 @@ const PayInOperations = () => {
             <div className="flex-grow-1 align-self-center">
               <ul className="nav nav-pills gap-3" id="pills-tab" role="tablist">
                 <li className="nav-item" role="presentation">
-                  <button onClick={() => handleInputChange("")} className={`nav-link ${searchTerm === "" ? "active" : ""} font14`} type="button" >All</button>
+                  <button onClick={() => handleStatus("")} className={`nav-link ${Status === "" ? "active" : ""} font14`} type="button" >All</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button onClick={() => handleInputChange("PENDING")} className={`nav-link ${searchTerm === "PENDING" ? "active" : ""} font14`} type="button">Pending</button>
+                  <button onClick={() => handleStatus("PENDING")} className={`nav-link ${Status === "PENDING" ? "active" : ""} font14`} type="button">Pending</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button onClick={() => handleInputChange("APPROVED")} className={`nav-link ${searchTerm === "APPROVED" ? "active" : ""} font14`} type="button">Approved</button>
+                  <button onClick={() => handleStatus("APPROVED")} className={`nav-link ${Status === "APPROVED" ? "active" : ""} font14`} type="button">Approved</button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button onClick={() => handleInputChange("EXPIRED")} className={`nav-link ${searchTerm === "EXPIRED" ? "active" : ""} font14`} type="button" >Expired</button>
+                  <button onClick={() => handleStatus("EXPIRED")} className={`nav-link ${Status === "EXPIRED" ? "active" : ""} font14`} type="button" >Expired</button>
                 </li>
               </ul>
             </div>

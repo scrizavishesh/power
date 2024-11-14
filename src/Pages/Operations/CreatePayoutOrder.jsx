@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { createOrderForPayout } from '../../Utils/Apis';
 import HashLoader from '../../Dashboard/Loader';
 import { useDispatch, useSelector } from 'react-redux';
+import CryptoJS from 'crypto-js';
 
 const Container = styled.div`
   .toggleBars {
@@ -150,6 +151,9 @@ const CreatePayoutOrder = () => {
         }
     };
 
+    const secretKey = "django-insecure-t4c5!_l0l$#@@o0+#=crk84#2662ev(f6ir@#)y%pzz2r&h&k%";
+
+
     const register = async () => {
         if (amount === '' || !amount) setAmountIsRequiredError(true);
         if (accountNumber === '') setAccountNumberIsRequiredError(true);
@@ -157,15 +161,20 @@ const CreatePayoutOrder = () => {
         if (ifsc === '') setIfscIsRequiredError(true);
 
         if (amount && accountNumber && bankName && ifsc) {
-            const formData = new FormData();
-            formData.append('amount', amount);
-            formData.append('account_number', accountNumber);
-            formData.append('bank_name', bankName);
-            formData.append('ifsc', ifsc);
+
+            const data = {
+                account_number: accountNumber,           // String
+                amount: parseFloat(amount),              // Float
+                bank_name: bankName,                     // String
+                callback_url: 'https://client-domain.com/api/callback',  // String
+                ifsc: ifsc                               // String
+            };
+
+            const hmac = CryptoJS.HmacSHA256(JSON.stringify(data), secretKey).toString();
 
             try {
                 setShowLoader(true);
-                const response = await createOrderForPayout(formData);
+                const response = await createOrderForPayout(data, hmac);
                 console.log(response, 'Create User');
                 if (response.status === 201) {
                     setAmount('');
@@ -200,7 +209,7 @@ const CreatePayoutOrder = () => {
                 <div className="row">
                     <div className="col-md-7 col-sm-12 order-md-1 order-sm-2">
                         <p className="greyText font14 fontWeight700">Hi {profileDetails?.username},</p>
-                        <p className="font32 fontWeight700">Welcome to Create Users</p>
+                        <p className="font32 fontWeight700">Welcome to Create Orders</p>
                     </div>
                     <div className="col-md-5 col-sm-12 order-md-2 order-sm-1 align-self-center">
                         <div className="row">
