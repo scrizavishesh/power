@@ -355,8 +355,6 @@ const KBProfilePage = () => {
         }
     };
 
-
-
     const userSuccess = async () => {
         try {
             setShowLoader(true);
@@ -428,7 +426,6 @@ const KBProfilePage = () => {
                                     <p className='cardBlueText font28 fontWeight900'>74,349 INR</p>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                     <div className="col-xl-3 col-lg-6 col-md-3 col-sm-6 p-4">
@@ -464,7 +461,6 @@ const KBProfilePage = () => {
                                     <p className='cardBlueText font28 fontWeight900'>74,349 INR</p>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -676,7 +672,6 @@ const KBProfilePage = () => {
                                             </div>
                                         )}
                                     </div>
-
                                 </form>
                             </div>
                         </div>

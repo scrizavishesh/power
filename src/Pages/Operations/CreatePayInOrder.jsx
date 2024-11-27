@@ -3,12 +3,11 @@ import styled from 'styled-components'
 import { useMainContext } from '../../Dashboard/DashboardLayout';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Link, useNavigate } from 'react-router-dom';
-import { createOrder, CreateUser } from '../../Utils/Apis';
+import { createOrder } from '../../Utils/Apis';
 import HashLoader from '../../Dashboard/Loader';
-import { useDispatch, useSelector } from 'react-redux';
 import Header from '../../Layouts/Header';
 import CryptoJS from 'crypto-js';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
 
@@ -64,6 +63,7 @@ const Container = styled.div`
 `;
 
 const CreatePayInOrder = () => {
+    const navigate = useNavigate();
 
     const [orderId, setOrderId] = useState('');
     console.log(orderId, "Create page")
@@ -113,6 +113,7 @@ const CreatePayInOrder = () => {
                     setAmount("");
                     toast.success("Order Created Successfully");
                     setShowLoader(false);
+                    navigate('/payInOperations')
                 }
             } catch (err) {
                 console.log(err);

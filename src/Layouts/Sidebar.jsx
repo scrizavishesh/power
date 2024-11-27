@@ -150,7 +150,7 @@ const ToggleIcon = styled(Icon)`
 
 const Sidebar = ({ lightmode, setlightmode }) => {
 
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('power_token')
     const { sidebaropen, toggleSidebar } = useMainContext();
     const dispatch = useDispatch();
     const { users, status, error } = useSelector(state => state.users);
@@ -190,6 +190,10 @@ const Sidebar = ({ lightmode, setlightmode }) => {
         setActiveLink(link);
         localStorage.setItem('activeLink', link);
     };
+
+    const LogoutSnip = () => {
+        localStorage.removeItem('power_token')
+    }
 
 
 
@@ -240,7 +244,7 @@ const Sidebar = ({ lightmode, setlightmode }) => {
                                     <li className='p-2'>
                                         <Link to="/users" className={`menus p-2 rounded-3 ${activeLink === 'users' ? 'active' : ''}`} onClick={() => handleActiveLink('users')} >
                                             <Icon icon="iconoir:user" width="1.5em" height="1.2em" />
-                                            <h3 className="font14 menu-text mb-0">Users</h3>
+                                            <h3 className="font14 menu-text mb-0">Accounts</h3>
                                         </Link>
                                     </li>
                                 )
@@ -249,37 +253,14 @@ const Sidebar = ({ lightmode, setlightmode }) => {
                             <li className='p-2'>
                                 <Link to="/saved_reports" className={`menus p-2 rounded-3 ${activeLink === 'saved_reports' ? 'active' : ''}`} onClick={() => handleActiveLink('saved_reports')} >
                                     <Icon icon="iconoir:page" width="1.5em" height="1.2em" />
-                                    <h3 className="font14 menu-text mb-0">Saved Reports</h3>
-                                </Link>
-                            </li>
-                            <li className={`greyText ${sidebaropen ? 'ps-3 pt-3' : "ps- pt-3"}`}><h3 className="font14 menu-text mb-0"> SETTINGS</h3></li>
-                            <li className='p-2'>
-                                <Link to="/manageUTR" className={`menus p-2 rounded-3 ${activeLink === ' manageUTR' ? 'active' : ''}`} onClick={() => handleActiveLink('manageUTR')} >
-                                    <Icon icon="lucide:bell" width="1.5em" height="1.2em" />
-                                    <h3 className="font14 menu-text mb-0">Manage</h3>
+                                    <h3 className="font14 menu-text mb-0">Statments</h3>
                                 </Link>
                             </li>
                             <li className='p-2'>
-                                <Link to="/settings" className={`menus p-2 rounded-3 ${activeLink === 'Settings' || activeLink === 'Settings2' ? 'active' : ''}`} onClick={() => handleActiveLink('Settings')} data-bs-toggle="collapse" data-bs-target="#collapseSettings" >
-                                    <Icon icon="bytesize:settings" width="1.5em" height="1.2em" />
-                                    <h3 className="font14 menu-text mb-0">Settings</h3>
+                                <Link className={`menus p-2 rounded-3 ${activeLink === 'saved_reports' ? 'active' : ''}`} onClick={() => LogoutSnip()} >
+                                    <Icon icon="tabler:logout-2" width="1.5em" height="1.2em" />
+                                    <h3 className="font14 menu-text mb-0">Log out</h3>
                                 </Link>
-                                <div id="collapseSettings" className="collapse collapse-menu pt-1">
-                                    <ul className='list-unstyled border-left'>
-                                        <li className='p-1'>
-                                            <Link to="/settings" className={`menus p-2 rounded-3 ${activeLink === 'Settings' ? 'active' : ''}`} onClick={() => handleActiveLink('Settings')} >
-                                                {/* <Icon icon="uil:home-alt" width="1.5em" height="1.2em" /> */}
-                                                <h3 className="font14 menu-text mb-0">Settings</h3>
-                                            </Link>
-                                        </li>
-                                        <li className='p-1'>
-                                            <Link to="/Settings2" className={`menus p-2 rounded-3 ${activeLink === 'Settings2' ? 'active' : ''}`} onClick={() => handleActiveLink('Settings2')} >
-                                                {/* <Icon icon="uil:home-alt" width="1.5em" height="1.2em" /> */}
-                                                <h3 className="font14 menu-text mb-0">Pay Out</h3>
-                                            </Link>
-                                        </li>
-                                    </ul>
-                                </div>
                             </li>
                             <li className={`profileBgg ${sidebaropen ? 'p-3' : 'p-1 pt-3 pb-3'}`} onClick={() => handleActiveLink('profile')} >
                                 <Link to='/profilePage' className={` text-decoration-none ${activeLink === 'profile' ? '' : ''}`}>

@@ -287,6 +287,8 @@ const Index = () => {
                                         <th>UTR</th>
                                         <th>Approval Status</th>
                                         <th>Agent Username</th>
+                                        <th>Payment Amount</th>
+                                        <th>Created At</th>
                                     </tr>
                                 </thead>
                                 <tbody>

@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const API_URL = "https://auth2.upicollect.com";
 
-var bearerToken = `Token ${localStorage.getItem("token")}`
+var bearerToken = `Token ${localStorage.getItem("power_token")}`
 
 
 export const Loginuse = async (requestData) => {
@@ -314,7 +314,6 @@ export const updateUserbyId = async (id) => {
 
 export const getDashStatics = async (id) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
-
   var response = await axios.get(`${API_URL}/api/statistics/`,);
   if (response) {
     return response;
@@ -325,7 +324,6 @@ export const getDashStatics = async (id) => {
 
 export const getGraphStatics = async (id) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
-
   var response = await axios.get(`${API_URL}/api/statistics/`,);
   if (response) {
     return response;

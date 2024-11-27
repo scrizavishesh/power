@@ -236,7 +236,7 @@ const Users = () => {
     setIds(null);  // Reset Ids
     setUpdateStatus('');  // Reset UpdateStatus
     bootstrap.Modal.getInstance(document.getElementById('confirmedModal')).hide();
-};
+  };
 
 
 
@@ -322,43 +322,53 @@ const Users = () => {
                 <tbody>
                   {Employees?.length !== 0 ? (
                     Employees?.map((employ) => {
-                      const role = getRole(employ);
+                      const role = getRole(employ?.personal_details);
                       return (
-                        <tr onClick={(e) => handleNavigate(employ?.id)}>
-                          <td className='font14 lineHeight24 align-middle'>{employ?.username}</td>
+                        <tr onClick={(e) => handleNavigate(employ?.personal_details?.id)}>
+                          <td className='font14 lineHeight24 align-middle'>{employ?.personal_details?.username}</td>
                           <td className='font14 lineHeight24 align-middle'>{role}</td>
-                          <td className='font14 lineHeight24 align-middle'>{employ?.upi_id}</td>
-                          <td className='font14 lineHeight24 align-middle'>
+                          <td className='font14 lineHeight24 align-middle'>{employ?.payment_details?.upi_id}</td>
+                          <td className="font14 lineHeight24 align-middle">
                             <Icon
-                              className='me-2'
+                              className="me-2"
                               icon="pepicons-pencil:circle-filled"
                               width="1.4em"
                               height="1.4em"
-                              style={{ color: `${employ?.is_blocked === false ? '#22C55D' : '#FC2222'}` }}
+                              style={{
+                                color: employ?.payment_details?.is_blocked ? '#FC2222' : '#22C55D',
+                              }}
                             />
-                            <span>{employ?.is_blocked === false ? 'UnBlock' : 'Block'}</span>
+                            <span>{employ?.payment_details?.is_blocked ? 'Block' : 'UnBlock'}</span>
                           </td>
-                          <td className='font14 lineHeight24 align-middle d-flex'>
+                          <td className="font14 lineHeight24 align-middle d-flex">
                             <div
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleNavigate(employ?.id, `${employ?.is_blocked === true ? false : true}`);
+                                const isBlocked = employ?.payment_details?.is_blocked;
+                                handleNavigate(employ?.personal_details?.id, !isBlocked);
                               }}
-                              type='button'
-                              className="flex-grow-1"
+                              type="button"
+                              className="flex-grow-1 cursor-pointer"
                             >
                               <Icon
-                                className='me-2'
+                                className="me-2"
                                 icon="icomoon-free:radio-unchecked"
                                 width="1em"
                                 height="1em"
-                                style={{ color: `${employ?.is_blocked === false ? '#FC2222' : '#22C55D'}` }}
+                                style={{
+                                  color: employ?.payment_details?.is_blocked ? '#22C55D' : '#FC2222',
+                                }}
                               />
-                              <span className={`${employ?.is_blocked === false ? 'textInactive' : 'textActive'}`}>
-                                Mark {employ?.is_blocked === false ? 'Block' : 'UnBlock'}
+                              <span
+                                className={
+                                  employ?.payment_details?.is_blocked ? 'textActive' : 'textInactive'
+                                }
+                              >
+                                Mark {employ?.payment_details?.is_blocked ? 'UnBlock' : 'Block'}
                               </span>
                             </div>
                           </td>
+
                         </tr>
 
                       );

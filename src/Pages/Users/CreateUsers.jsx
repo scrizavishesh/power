@@ -3,10 +3,10 @@ import styled from 'styled-components'
 import { useMainContext } from '../../Dashboard/DashboardLayout';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
 import { CreateUser } from '../../Utils/Apis';
 import HashLoader from '../../Dashboard/Loader';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
 
@@ -62,6 +62,8 @@ const Container = styled.div`
 `;
 
 const CreateUsers = () => {
+
+    const navigate = useNavigate();
 
     const dispatch = useDispatch();
     const { users, status, error } = useSelector(state => state.users);
@@ -439,6 +441,7 @@ const CreateUsers = () => {
                     setCommission("");
                     setSelectedRole("");
                     toast.success("User Created Successfully");
+                    navigate('/users')
                 }
             } catch (err) {
                 console.log(err);

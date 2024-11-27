@@ -5,7 +5,7 @@ import WithoutAuth from './Main/WithoutAuth';
 
 function App() {
 
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("power_token");
 
   return (
     <>

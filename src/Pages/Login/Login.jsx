@@ -141,6 +141,9 @@ const Login = () => {
                 localStorage.setItem(
                     `role`, JSON.stringify(response?.data?.role)
                 );
+                localStorage.setItem(
+                    `assigned_data`, JSON.stringify(response?.data?.users[0]?.personal_details)
+                );
                 navigate("/")
                 window.location.reload();
             }
@@ -169,7 +172,7 @@ const Login = () => {
                 if (response?.status === 200) {
                     settokenData(response?.data?.token);
                     localStorage.setItem(
-                        `token`, response?.data?.token
+                        `power_token`, response?.data?.token
                     );
                 }
             } catch (err) {

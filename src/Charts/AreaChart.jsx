@@ -21,7 +21,7 @@ const AreaChart = ({ year, type, lightMode }) => {
       console.log(orderResponse, "OrderGraphData")
       if (orderResponse?.status === 200)
         setShowLoader(false);
-      setGraphData(orderResponse?.data)
+      setGraphData(orderResponse?.data?.graph_data)
     } catch (err) {
       console.log(err);
     }

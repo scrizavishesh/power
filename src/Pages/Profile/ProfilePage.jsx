@@ -113,7 +113,7 @@ const Container = styled.div`
 
 const ProfilePage = () => {
 
-    
+
 
     const { toggleSidebar } = useMainContext();
     const dispatch = useDispatch();
@@ -195,6 +195,10 @@ const ProfilePage = () => {
                                         </div>
                                         <span className='col-4'> <img className='p-2 borderRadius12' src="./images/blueBg.svg" alt="" /> </span>
                                     </div>
+                                    <div>
+                                            <p className='dashboardshort'></p>
+                
+                                    </div>
                                 </div>
                             </div>
                             <div className="col-xl-4 col-lg-6 col-md-3 col-sm-6 p-4">
@@ -206,6 +210,9 @@ const ProfilePage = () => {
                                         </div>
                                         <span className='col-4'> <img className='p-2 borderRadius12' src="./images/blueBg.svg" alt="" /> </span>
                                     </div>
+                                    <div>
+                                        <p className='dashboardshort'>Available PayIn Limit : {Statics?.payin_stats?.total_payin}</p>
+                                    </div>
                                 </div>
                             </div>
                             <div className="col-xl-4 col-lg-6 col-md-3 col-sm-6 p-4">
@@ -216,6 +223,9 @@ const ProfilePage = () => {
                                             <p className='cardBlueText font24 fontWeight900'>{Statics?.payout_stats?.total_payout_operations}</p>
                                         </div>
                                         <span className='col-4'> <img className='p-2 borderRadius12' src="./images/blueBg.svg" alt="" /> </span>
+                                    </div>
+                                    <div>
+                                        <p className='dashboardshort'>Available PayOut Limit : {Statics?.payin_stats?.total_payin}</p>
                                     </div>
                                 </div>
                             </div>

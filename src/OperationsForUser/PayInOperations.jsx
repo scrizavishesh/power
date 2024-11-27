@@ -193,13 +193,6 @@ const PayInOperations = () => {
     } catch (err) {
       console.log(err);
     }
-
-    // try {
-    //   const agentsResponse = await getAgents(currentpage);
-    //   if (agentsResponse?.status === 200) setShowAgents(agentsResponse?.data?.results);
-    // } catch (err) {
-    //   console.log(err);
-    // }
   };
 
   useEffect(() => {
