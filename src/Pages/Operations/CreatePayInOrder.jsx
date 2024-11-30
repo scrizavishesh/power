@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react';
 import styled from 'styled-components'
 import { useMainContext } from '../../Dashboard/DashboardLayout';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { createOrder } from '../../Utils/Apis';
 import HashLoader from '../../Dashboard/Loader';
@@ -65,6 +65,8 @@ const Container = styled.div`
 const CreatePayInOrder = () => {
     const navigate = useNavigate();
 
+    const token = localStorage.getItem('power_token')
+
     const [orderId, setOrderId] = useState('');
     console.log(orderId, "Create page")
 
@@ -113,7 +115,7 @@ const CreatePayInOrder = () => {
                     setAmount("");
                     toast.success("Order Created Successfully");
                     setShowLoader(false);
-                    navigate('/payInOperations')
+                    // navigate('/payInOperations')
                 }
             } catch (err) {
                 console.log(err);
@@ -122,6 +124,29 @@ const CreatePayInOrder = () => {
             }
         }
     };
+
+    useEffect(() => {
+        const socket = new WebSocket(`ws://auth2.upicollect.com/ws/order_status/${orderId}/?token=${token}`);
+        const onSocketMessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log(data, "WebSocket Data");
+        
+        };
+        socket.addEventListener("message", onSocketMessage);
+        socket.onopen = () => {
+            console.log("WebSocket connection established");
+        };
+        socket.onclose = () => {
+            console.log("WebSocket connection closed");
+        };
+        socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+        return () => {
+            socket.removeEventListener("message", onSocketMessage);
+            socket.close();
+        };
+    }, [orderId]);
 
 
 

@@ -4,9 +4,7 @@ import styled from 'styled-components';
 import { Icon } from '@iconify/react';
 import { Link, useLocation } from 'react-router-dom';
 import { useMainContext } from '../Dashboard/DashboardLayout';
-import 'bootstrap/dist/css/bootstrap.min.css';  // npm install bootstrap
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUsers } from '../redux/users/usersSlice';
+import 'bootstrap/dist/css/bootstrap.min.css'; 
 
 const Container = styled.div`
     position: relative;
@@ -152,25 +150,13 @@ const Sidebar = ({ lightmode, setlightmode }) => {
 
     const token = localStorage.getItem('power_token')
     const { sidebaropen, toggleSidebar } = useMainContext();
-    const dispatch = useDispatch();
-    const { users, status, error } = useSelector(state => state.users);
-    const [profileDetails, setprofileDetails] = useState(users[0]);
 
-    const getRole = () => {
-        if (profileDetails?.is_superadmin === true) return "Super Admin";
-        if (profileDetails?.is_admin === true) return "Admin";
-        if (profileDetails?.is_creator === true) return "Sub Admin";
-        if (profileDetails?.is_agent === true) return "Peer";
-        return "No Role Assigned";
-    };
 
-    const role = getRole();
 
-    useEffect(() => {
-        dispatch(fetchUsers());
-        getRole();
-        console.log(role, "role");
-    }, [dispatch]);
+  
+    const role = JSON.parse(localStorage.getItem("role"));
+    const assigned = JSON.parse(localStorage.getItem("assigned_data"));
+
 
     const location = useLocation();
 
@@ -265,7 +251,7 @@ const Sidebar = ({ lightmode, setlightmode }) => {
                             <li className={`profileBgg ${sidebaropen ? 'p-3' : 'p-1 pt-3 pb-3'}`} onClick={() => handleActiveLink('profile')} >
                                 <Link to='/profilePage' className={` text-decoration-none ${activeLink === 'profile' ? '' : ''}`}>
                                     <p className='text-center'><img className='img-fluid' src="./images/profileImage.svg" alt="" /></p>
-                                    <p className={`font20 p-1 text-white text-center ${sidebaropen ? '' : 'd-none'}`}>{profileDetails?.name}</p>
+                                    <p className={`font20 p-1 text-white text-center ${sidebaropen ? '' : 'd-none'}`}>{assigned?.name}</p>
                                     <p className='font12 text-white text-center'>{role}</p>
                                 </Link>
                             </li>

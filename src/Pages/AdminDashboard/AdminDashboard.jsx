@@ -4,10 +4,13 @@ import styled from 'styled-components'
 import AreaChart from '../../Charts/AreaChart';
 import { useMainContext } from '../../Dashboard/DashboardLayout';
 import HashLoader from '../../Dashboard/Loader';
-import { getDashStatics } from '../../Utils/Apis';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUsers } from '../../redux/users/usersSlice';
+import { getDashStatics, graphData } from '../../Utils/Apis';
 import Header from '../../Layouts/Header';
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title, LineElement, ArcElement, PointElement, Filler } from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title, LineElement, ArcElement, PointElement, Filler);
+
 
 const Container = styled.div`
   .greyText{
@@ -72,35 +75,18 @@ const AdminDashboard = ({ lightMode }) => {
   const role = JSON.parse(localStorage.getItem("role"));
 
   const { toggleSidebar } = useMainContext();
-  const dispatch = useDispatch();
-  const { users, status, error } = useSelector(state => state.users);
   const [year, setYear] = useState(2024);
   const [type, setType] = useState('payin')
 
-  const [showLoader, setShowLoader] = useState(false);
-
   const [Statics, setStatics] = useState('');
-
-  const fetchData = async () => {
-    try {
-      setShowLoader(true)
-      const orderResponse = await getDashStatics();
-      console.log(orderResponse, "Dash Statics ")
-      if (orderResponse?.status === 200) {
-        setStatics(orderResponse?.data);
-        setTimeout(() => {
-          setShowLoader(false);
-        }, 1000);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const [adminDetails, setAdminDetails] = useState([])
 
   useEffect(() => {
-    dispatch(fetchUsers());
-    fetchData();
-  }, [dispatch]);
+    fetchData()
+  }, [])
+
+
+
 
   const handleType = (value) => {
     setType(value)
@@ -109,6 +95,120 @@ const AdminDashboard = ({ lightMode }) => {
   const handleyear = (value) => {
     setYear(value)
   }
+
+
+  const [graphDat, setGraphData] = useState('');
+  const [showLoader, setShowLoader] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      setShowLoader(true);
+      const orderResponse = await graphData(year, type);
+      console.log(orderResponse, "OrderGraphData")
+      if (orderResponse?.status === 200)
+        setShowLoader(false);
+      setGraphData(orderResponse?.data?.graph_data);
+      setStatics(orderResponse?.data);
+      setAdminDetails(orderResponse?.data?.Hierarchy)
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [year, type]);
+
+  const labels = Object.keys(graphDat);
+  const payinData = labels.map(month => graphDat[month].payin.Created);
+  const payoutData = labels.map(month => graphDat[month].payout.Submitted);
+
+
+
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: 'Payin Created',
+        data: payinData,
+        fill: true,
+        backgroundColor: 'rgba(34, 197, 93, 0.1)',
+        borderColor: '#22C55D',
+        pointRadius: 0,
+        tension: 0.4
+      },
+      {
+        label: 'Payout Submitted',
+        data: payoutData,
+        fill: true,
+        backgroundColor: 'rgba(34, 197, 193, 0.1)',
+        borderColor: '#22C5DD',
+        pointRadius: 0,
+        tension: 0.4
+      }
+    ]
+  };
+
+  const options = {
+    responsive: true,
+    layout: {
+      padding: {
+        top: 10,
+        bottom: 10,
+        left: 10,
+        right: 10
+      }
+    },
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        enabled: true,
+        callbacks: {
+          title: function (tooltipItems) {
+            const item = tooltipItems[0];
+            return data.labels[item.dataIndex];
+          },
+          label: function (tooltipItem) {
+            return `Details: ${tooltipItem.raw}`;
+          }
+        },
+        backgroundColor: '#ffffff',
+        titleColor: '#000000',
+        bodyColor: '#000000',
+        displayColors: false
+      }
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false
+        },
+        ticks: {
+          color: lightMode ? 'var(--searchGreyText)' : '#999999',
+        },
+        border: {
+          color: lightMode ? '#008479' : '#999999'
+        }
+      },
+      y: {
+        grid: {
+          display: false
+        },
+        beginAtZero: true,
+        border: {
+          color: lightMode ? '#008479' : '#999999'
+        },
+        ticks: {
+          color: lightMode ? 'var(--searchGreyText)' : '#999999',
+          callback: function (value) {
+            return value + 'k';
+          }
+        }
+      }
+    }
+  };
 
 
 
@@ -140,12 +240,12 @@ const AdminDashboard = ({ lightMode }) => {
                         <p className='dashboardfont'>PayIn Amount</p>
                       </div>
                       <div className='mt-2'>
-                        <p className='dashboardprice'>{Statics?.payin_stats?.total_payin}</p>
+                        <p className='dashboardprice'>{Statics?.total_payin_amount}</p>
                       </div>
                     </div>
                   </div>
                   <div>
-                    <p className='dashboardshort'>Available PayIn Limit : {Statics?.payin_stats?.total_payin}</p>
+                    <p className='dashboardshort'>Available PayIn Limit : {Statics?.payin_limit}</p>
                   </div>
 
                 </div>
@@ -163,12 +263,12 @@ const AdminDashboard = ({ lightMode }) => {
                         <p className='dashboardfont'>PayOut Amount</p>
                       </div>
                       <div className='mt-2'>
-                        <p className='dashboardprice'>{Statics?.payout_stats?.total_payout}</p>
+                        <p className='dashboardprice'>{Statics?.total_payout_amount}</p>
                       </div>
                     </div>
                   </div>
                   <div>
-                    <p className='dashboardshort'>Available PayOut Limit : {Statics?.payin_stats?.total_payin}</p>
+                    <p className='dashboardshort'>Available PayOut Limit : {Statics?.payout_limit}</p>
                   </div>
                 </div>
               </div>
@@ -178,7 +278,7 @@ const AdminDashboard = ({ lightMode }) => {
                 <div className={`row p-3 borderRadius8 bg-white`}>
                   <div className='d-flex justify-content-between pt-2'>
                     <p className='dashboardfont'>Total PayIn</p>
-                    <p className='dashboardprice'>{Statics?.payin_stats?.total_payin_operations}</p>
+                    <p className='dashboardprice'>{Statics?.total_payin_count}</p>
                   </div>
                 </div>
               </div>
@@ -186,7 +286,7 @@ const AdminDashboard = ({ lightMode }) => {
                 <div className={`row p-3 borderRadius8 bg-white`}>
                   <div className='d-flex justify-content-between pt-2'>
                     <p className='dashboardfont'>Total PayOut</p>
-                    <p className='dashboardprice'>{Statics?.payout_stats?.total_payout_operations}</p>
+                    <p className='dashboardprice'>{Statics?.total_payout_count}</p>
                   </div>
                 </div>
               </div>
@@ -462,18 +562,35 @@ const AdminDashboard = ({ lightMode }) => {
                             <div>
                               <h6 className='dashboardfont'>Total Sub Admin </h6>
                             </div>
-                            <div className={`row p-3 borderRadius8 gap-3`} style={{ background: "#2C6DB50F " }}>
-                              <div className={`p-2 borderRadius8 `} style={{ background: "#2C6DB50F " }}>
-                                <div className='' >
-                                  <p className='dashboardfont'>Sub Admin 1</p>
+
+                            {adminDetails.map((subAdmin) => (
+                              <div key={subAdmin.id} className="col-12 mb-3">
+                                <div className="dropdown">
+                                  <div
+                                    className={`row p-3 borderRadius8 gap-3`}
+                                    style={{ background: "#2C6DB50F" }}
+                                    type="button"
+                                    id={`dropdown-${subAdmin.id}`}
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                  >
+                                    {subAdmin.username}
+                                  </div>
+                                  <ul
+                                    className="dropdown-menu"
+                                    aria-labelledby={`dropdown-${subAdmin.id}`}
+                                  >
+                                    {subAdmin.agents.map((agent) => (
+                                      <li key={agent.id}>
+                                        <a className="dropdown-item" href="#">
+                                          {agent.username}
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
                                 </div>
                               </div>
-                              <div className={`p-2 borderRadius8 `} style={{ background: "#2C6DB50F " }}>
-                                <div className='' >
-                                  <p className='dashboardfont'>Sub Admin 2</p>
-                                </div>
-                              </div>
-                            </div>
+                            ))}
                             <div className='d-flex justify-content-center mt-3 text text-center'>
                               <button type="button" class="btn btn-primary btn-lg dashboardbutton" style={{ backgroundColor: "#2C6DB5" }}>Create User</button>
                             </div>
@@ -499,7 +616,7 @@ const AdminDashboard = ({ lightMode }) => {
                         <div className={`row p-3 borderRadius8 `} style={{ backgroundColor: "#F5F8FC" }}>
                           <div className='d-flex justify-content-between pt-2'>
                             <p className='dashboardfont'>PayIn Commission</p>
-                            <p className='dashboardprice'>{Statics?.payout_stats?.total_payout_operations}</p>
+                            <p className='dashboardprice'>{Statics?.pay_incommission}</p>
                           </div>
                         </div>
                       </div>
@@ -507,7 +624,7 @@ const AdminDashboard = ({ lightMode }) => {
                         <div className={`row p-3 borderRadius8`} style={{ backgroundColor: "#F5F8FC" }}>
                           <div className='d-flex justify-content-between pt-2'>
                             <p className='dashboardfont'>Payout Commission</p>
-                            <p className='dashboardprice'>{Statics?.payout_stats?.total_payout_operations}</p>
+                            <p className='dashboardprice'>{Statics?.pay_outcommission}</p>
                           </div>
                         </div>
                       </div>
@@ -517,7 +634,7 @@ const AdminDashboard = ({ lightMode }) => {
                         <div className={`row p-3 borderRadius8 `} style={{ backgroundColor: "#F5F8FC" }}>
                           <div className='d-flex justify-content-between pt-2'>
                             <p className='dashboardfont'>Wallet Balance</p>
-                            <p className='dashboardprice'>{Statics?.payout_stats?.total_payout_operations}</p>
+                            <p className='dashboardprice'>{Statics?.wallet}</p>
                           </div>
                         </div>
                       </div>
@@ -542,7 +659,9 @@ const AdminDashboard = ({ lightMode }) => {
                       </div>
                     </div>
                     <div className={`${lightMode ? 'bg-white' : 'bgGrey'} p-4 borderRadius8`} style={{ backgroundColor: "#F5F8FC" }}>
-                      <AreaChart year={year} type={type} lightMode={lightMode} />
+                      <div className="chart-container" style={{ height: '80vh' }}>
+                        <Line data={data} options={options}></Line>
+                      </div>
                     </div>
                   </div>
                 </div>
