@@ -11,6 +11,7 @@ import ResponsivePagination from 'react-responsive-pagination';
 import 'react-responsive-pagination/themes/classic.css';
 import HashLoader from '../../Dashboard/Loader';
 import { useDispatch, useSelector } from 'react-redux';
+import DownloadReports from '../../Modals/DownloadReports';
 
 const Container = styled.div`
 
@@ -105,7 +106,6 @@ const Index = () => {
     const [Employees, setEmployees] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [role, setRole] = useState('')
-    const [csvData, setCsvData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const itemsPerPage = 10;
@@ -172,41 +172,18 @@ const Index = () => {
         }
     };
 
-
-
-
-
-    const handleNavigate = (id, update) => {
-        if (update) {
-            userUpdate(id, update);
-        } else {
-            navigate(`/kBProfilePage/${id}`);
-        }
-    };
-
-
-    const userUpdate = async (id, update) => {
-        const formData = new FormData();
-        formData.append("is_checked_in", update);
-        try {
-            setShowLoader(true);
-            const response = await updateUserbyId(id, formData);
-            console.log(response, "user update successfully")
-            if (response.status === 200) {
-                setShowLoader(false);
-                toast.success("user update successfully");
-                getEmployess();
-                setchangeState(false);
-            }
-        } catch (err) {
-            console.log(err);
-            toast.error(err?.response?.data?.username[0]);
-        }
-    };
-
-
     const handleStatus = (value) => {
         setStatus(value);
+    };
+
+
+
+    const handleNavigate = () => {
+        new bootstrap.Modal(document.getElementById('confirmedModal')).show();
+    };
+
+    const handleData = () => {
+        bootstrap.Modal.getInstance(document.getElementById('confirmedModal')).hide();
     };
 
 
@@ -247,21 +224,10 @@ const Index = () => {
                 <div className="row mt-3 mb-3">
                     <div className="d-flex">
                         <div className="flex-grow-1 align-self-center">
-                            {/* <ul class="nav nav-pills gap-3" id="pills-tab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button onClick={() => handleStatus("")} className={`nav-link ${statu === "" ? "active" : ""} font14`} >All</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button onClick={() => handleStatus("active")} className={`nav-link ${statu === "active" ? "active" : ""} font14`} >Active</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button onClick={() => handleStatus("inactive")} className={`nav-link ${statu === "inactive" ? "active" : ""} font14`} >Inactive</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                </li>
-                            </ul> */}
+
                         </div>
-                        <Link className='btn borderRadius10 addNewUserBtn me-3 align-self-center' to='/createUser'>+ Download Report</Link>
+                        <Link className='btn borderRadius10 addNewUserBtn me-3 align-self-center' to='/report'>+ Saved Reports</Link>
+                        <Link className='btn borderRadius10 addNewUserBtn me-3 align-self-center' onClick={handleNavigate}>+ Generate Report</Link>
                         {/* <span className='btn borderRadius10 bg-white d-flex'>
                             <select onChange={(e) => changeRole(e.target.value)} class="form-select p-0 font14 me-3" aria-label="Default select example">
                                 <option value=''>-- Choose --</option>
@@ -319,6 +285,16 @@ const Index = () => {
                         </div>
                         <div class="tab-pane fade" id="pills-blocked" role="tabpanel" aria-labelledby="pills-blocked-tab" tabindex="0">
                             <span className='text-danger font14'>No Data Found !!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="modal fade" id="confirmedModal" tabIndex="-1" aria-labelledby="confirmedModalLabel" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-body p-1">
+                            <DownloadReports onData={handleData} />
                         </div>
                     </div>
                 </div>

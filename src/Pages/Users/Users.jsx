@@ -91,9 +91,9 @@ const Container = styled.div`
 
 const Users = () => {
 
-  const dispatch = useDispatch();
-  const { users, status, error } = useSelector(state => state.users);
-  const [profileDetail, setprofileDetail] = useState(users[0]);
+
+
+  const assigned = JSON.parse(localStorage.getItem("assigned_data"));
 
   const navigate = useNavigate();
   const { toggleSidebar } = useMainContext();
@@ -112,11 +112,6 @@ const Users = () => {
   const [updateData, setupdateData] = useState(false);
   console.log(updateData, "update data")
 
-
-  // const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  // tooltipTriggerList.forEach((tooltipTriggerEl) => {
-  //     new window.bootstrap.Tooltip(tooltipTriggerEl);
-  // });
 
   useEffect(() => {
     getEmployess();
@@ -156,45 +151,6 @@ const Users = () => {
     return "No Role Assigned";
   };
 
-
-  const timeAgo = (timestamp) => {
-    const currentTime = new Date();
-    const lastActiveTime = new Date(timestamp);
-
-    const diff = currentTime - lastActiveTime;
-    const diffInMinutes = Math.floor(diff / 60000);
-    const diffInHours = Math.floor(diffInMinutes / 60);
-
-    if (diffInMinutes < 60) {
-      return `Last active ${diffInMinutes}m ago`;
-    } else if (diffInMinutes < 1440) {
-      const minutes = diffInMinutes % 60;
-      return `Last active ${diffInHours}h ${minutes}m ago`;
-    } else {
-      const days = Math.floor(diffInHours / 24);
-      const hours = diffInHours % 24;
-      return `Last active ${days}d ${hours}h ago`;
-    }
-  };
-
-  const getStatus = (isCheckedIn, last_check_in) => {
-    if (isCheckedIn) {
-      return {
-        color: '#22C55D',
-        text: 'Active'
-      };
-    } else {
-      return {
-        color: '#FC2222',
-        text: timeAgo(last_check_in)
-      };
-    }
-  };
-
-
-
-
-
   const handleNavigate = (id, update) => {
     if (update) {
       setIds(id);
@@ -206,25 +162,6 @@ const Users = () => {
     }
   };
 
-
-  const userUpdate = async (id, update) => {
-    const formData = new FormData();
-    formData.append("is_checked_in", update);
-    try {
-      setShowLoader(true);
-      const response = await updateUserbyId(id, formData);
-      console.log(response, "user update successfully")
-      if (response.status === 200) {
-        setShowLoader(false);
-        toast.success("user update successfully");
-        getEmployess();
-        setchangeState(false);
-      }
-    } catch (err) {
-      console.log(err);
-      toast.error(err?.response?.data?.username[0]);
-    }
-  };
 
 
   const handleStatus = (value) => {
@@ -238,12 +175,6 @@ const Users = () => {
     bootstrap.Modal.getInstance(document.getElementById('confirmedModal')).hide();
   };
 
-
-
-
-
-  // const [dropVisible, setDropVisible] = useState(false);
-
   return (
     <Container>
       {
@@ -255,10 +186,9 @@ const Users = () => {
         <Icon className='toggleBars mb-3' icon="fa6-solid:bars" width="1.5em" height="1.5em" style={{ color: '#000' }} onClick={toggleSidebar} />
         <div className="row">
           <div className="col-md-7 col-sm-12 order-md-1 order-sm-2">
-            <p className='greyText font14 fontWeight700'>Hi {profileDetail?.username},</p>
+            <p className='greyText font14 fontWeight700'>Hi {assigned?.username},</p>
             <p className='font32 fontWeight700'>Welcome to Users</p>
           </div>
-
           <div className="col-md-5 col-sm-12 order-md-2 order-sm-1 align-self-center">
             <div className="row">
               <div className="col-2 align-self-center text-center">
@@ -345,7 +275,7 @@ const Users = () => {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 const isBlocked = employ?.payment_details?.is_blocked;
-                                handleNavigate(employ?.personal_details?.id, !isBlocked);
+                                handleNavigate(employ?.personal_details?.id, isBlocked ? 'UnBlock' : 'Block');
                               }}
                               type="button"
                               className="flex-grow-1 cursor-pointer"
@@ -395,8 +325,6 @@ const Users = () => {
           </div>
         </div>
       </div>
-
-
       <div className="modal fade" id="confirmedModal" tabIndex="-1" aria-labelledby="confirmedModalLabel" aria-hidden="true">
         <div className="modal-dialog">
           <div className="modal-content">

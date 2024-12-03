@@ -53,6 +53,7 @@ const Container = styled.div`
 
 const AccountConfirm = ({ Ids, UpdateStatus, onData }) => {
 
+    console.log(UpdateStatus, "update")
     
     const [showLoader, setShowLoader] = useState(false);
 
@@ -93,7 +94,7 @@ const AccountConfirm = ({ Ids, UpdateStatus, onData }) => {
                         <h4>Are you sure?</h4>
                         <p >Are you sure you would like to
                             <br />
-                            <b>{UpdateStatus ==='true' ? 'Block' : 'UnBlock'}</b> this account?
+                            <b>{UpdateStatus}</b> this account?
                             </p>
                     </div>
                 </div>

@@ -363,17 +363,17 @@ const KBProfilePage = () => {
             if (response?.status === 200) {
                 setShowLoader(false);
                 setprofileDetails(response?.data)
-                setName(response?.data?.name);
-                setUsername(response?.data?.username);
-                setEmail(response?.data?.email);
-                setStatus(response?.data?.is_checked_in)
-                setPhoneNumber(response?.data?.phone_number);
-                setUpi(response?.data?.upi_id);
-                setBankName(response?.data?.bank_name);
-                setBankAccountNumber(response?.data?.bank_account_number);
-                setPayInLimit(response?.data?.payin_limit);
-                setPayOutLimit(response?.data?.payout_limit);
-                setIfsc(response?.data?.ifsc)
+                setName(response?.data?.personal_details?.name);
+                setUsername(response?.data?.personal_details?.username);
+                setEmail(response?.data?.personal_details?.email);
+                setStatus(response?.data?.personal_details?.is_checked_in)
+                setPhoneNumber(response?.data?.personal_details?.phone_number);
+                setUpi(response?.data?.payment_details?.upi_id);
+                setBankName(response?.data?.document_details?.bank_name);
+                setBankAccountNumber(response?.data?.document_details?.bank_account_number);
+                setPayInLimit(response?.data?.payment_details?.payin_limit);
+                setPayOutLimit(response?.data?.payment_details?.payout_limit);
+                setIfsc(response?.data?.document_details?.ifsc)
                 setPayIn(response?.data)
                 setPayOut(response?.data)
             }

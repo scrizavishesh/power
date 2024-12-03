@@ -46,7 +46,7 @@ export const createOrder = async (requestData, hmac) => {
 
 export const createOrderForPayout = async (requestData, hmac) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
-  axios.defaults.headers.common["Sign"] = hmac; 
+  axios.defaults.headers.common["Sign"] = hmac;
   var response = await axios.post(`${API_URL}/api/payout/create/`, requestData);
   if (response) {
     return response;
@@ -128,7 +128,7 @@ export const getCreatorAgents = async (pageNo) => {
 
 export const getAgentsById = async (id) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
-  var response = await axios.get(`${API_URL}/api/users/${id}`,);
+  var response = await axios.get(`${API_URL}/api/users/${id}/`,);
   if (response) {
     return response;
   } else {
@@ -136,7 +136,7 @@ export const getAgentsById = async (id) => {
   }
 }
 
-export const createFund = async ( orderId, recId, id, amount) => {
+export const createFund = async (orderId, recId, id, amount) => {
   axios.defaults.headers.common["Authorization"] = "";
   var response = await axios.get(`${API_URL}/api/payments/create?order_id=${orderId}&receipt_id=${recId}&id=${id}&amount=${amount}`,);
   if (response) {
@@ -194,7 +194,7 @@ export const CreateUser = async (requestData) => {
 export const UpdatesUsers = async (requestData, id) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
 
-  var response = await axios.patch(`${API_URL}/api/users/${id}/`, requestData);
+  var response = await axios.patch(`${API_URL}/api/users/${id}`, requestData);
   if (response) {
     return response;
   } else {
@@ -288,7 +288,7 @@ export const assignOrder = async (data) => {
 export const getPerticualrProfile = async (id) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
 
-  var response = await axios.get(`${API_URL}/api/users/${id}`,);
+  var response = await axios.get(`${API_URL}/api/users/${id}/`,);
   if (response) {
     return response;
   } else {
@@ -299,7 +299,7 @@ export const getPerticualrProfile = async (id) => {
 export const updateUserbyId = async (id) => {
   // axios.defaults.headers.common["Authorization"] = bearerToken;
   // var response = await axios.patch(`${API_URL}/api/users/${id}/`, data);
-  const response = await axios.post(`${API_URL}/api/users/${id}/block-unblock/`,'', {
+  const response = await axios.post(`${API_URL}/api/users/${id}/block-unblock/`, '', {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': bearerToken, // If needed
@@ -363,6 +363,73 @@ export const graphData = async (year, type) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
 
   var response = await axios.get(`${API_URL}/api/graph-statistics/?year=${year}&transaction_type=${type}`,);
+  if (response) {
+    return response;
+  } else {
+    return [];
+  }
+}
+
+
+export const reportData = async () => {
+  axios.defaults.headers.common["Authorization"] = bearerToken;
+
+  var response = await axios.get(`${API_URL}/api/reports/`,);
+  if (response) {
+    return response;
+  } else {
+    return [];
+  }
+}
+
+export const listOfPay = async () => {
+  axios.defaults.headers.common["Authorization"] = bearerToken;
+
+  var response = await axios.get(`${API_URL}/api/list/`,);
+  if (response) {
+    return response;
+  } else {
+    return [];
+  }
+}
+
+
+
+export const generateRepot = async (requestData) => {
+  const response = await axios.post(`${API_URL}/api/reports/`, requestData, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': bearerToken, // If needed
+    },
+  })
+  if (response) {
+    return response;
+  } else {
+    return [];
+  }
+}
+
+
+export const Downloadreport = async (id) => {
+  const response = await axios.get(`${API_URL}/api/reports/${id}/`, '', {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': bearerToken, // If needed
+    },
+  })
+  if (response) {
+    return response;
+  } else {
+    return [];
+  }
+}
+
+
+
+export const clientDetails = async () => {
+  axios.defaults.headers.common["Authorization"] = bearerToken;
+
+  var response = await axios.get(`${API_URL}/api/clients/`,);
   if (response) {
     return response;
   } else {

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Icon } from '@iconify/react';
 import { Link, useLocation } from 'react-router-dom';
 import { useMainContext } from '../Dashboard/DashboardLayout';
-import 'bootstrap/dist/css/bootstrap.min.css'; 
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Container = styled.div`
     position: relative;
@@ -153,7 +153,7 @@ const Sidebar = ({ lightmode, setlightmode }) => {
 
 
 
-  
+
     const role = JSON.parse(localStorage.getItem("role"));
     const assigned = JSON.parse(localStorage.getItem("assigned_data"));
 
@@ -179,6 +179,7 @@ const Sidebar = ({ lightmode, setlightmode }) => {
 
     const LogoutSnip = () => {
         localStorage.removeItem('power_token')
+        window.location.reload();
     }
 
 
@@ -197,6 +198,15 @@ const Sidebar = ({ lightmode, setlightmode }) => {
                     <div className="-scroll p-0">
                         <ul className={`list-unstyled ${sidebaropen ? 'p-3' : 'p-2'}`}>
                             <li className={`greyText ${sidebaropen ? 'ps-3 pt-3' : "ps-3 pt-3"}`}><h3 className="font14 menu-text mb-0"> MAIN</h3></li>
+                            {
+                                role === 'super admin' && (
+                                    <li className='p-2'>
+                                        <Link to="/productpage" className={`menus p-2 rounded-3 ${activeLink === 'productpage' ? 'active' : ''}`} onClick={() => handleActiveLink('productpage')} >
+                                            <Icon icon="uil:home-alt" width="1.5em" height="1.2em" />
+                                            <h3 className="font14 menu-text mb-0">Product</h3>
+                                        </Link>
+                                    </li>
+                                )}
                             <li className='p-2'>
                                 <Link to="/" className={`menus p-2 rounded-3 ${activeLink === 'dashboard' ? 'active' : ''}`} onClick={() => handleActiveLink('dashboard')} >
                                     <Icon icon="uil:home-alt" width="1.5em" height="1.2em" />

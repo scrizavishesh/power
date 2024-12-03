@@ -17,6 +17,8 @@ import CreatePayoutOrder from '../Pages/Operations/CreatePayoutOrder';
 import Index from '../Pages/SavedReports/Index';
 import PeerPayInOperations from '../Pages/Operations/PeerPayInOperations';
 import Create_Fund from '../Pages/FundTransfer/Create_Fund';
+import ProductPage from '../Pages/AdminDashboard/ProductPage';
+import SavedReport from '../Pages/SavedReports/SavedReport';
 
 const Main = ({ lightMode, setLightMode }) => {
 
@@ -38,7 +40,10 @@ const Main = ({ lightMode, setLightMode }) => {
         {
           parsedRole === 'agent' ? <Route path='/payInOperations' element={<PeerPayInOperations />} /> : <Route path='/payInOperations' element={<PayInOperations />} />
         }
-        <Route path='/createPayInOrder' element={<CreatePayInOrder />} />
+      
+            <Route path='/createPayInOrder' element={<CreatePayInOrder />} />
+        <Route path='/productpage' element={<ProductPage />} />
+        <Route path='/report' element={<SavedReport />} />
         <Route path='/payInOperation/:id' element={<PayInOperation />} />
         <Route path='/payOutOperations' element={<PayOutOperations />} />
         <Route path='/createPayOutOrder' element={<CreatePayoutOrder />} />
