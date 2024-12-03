@@ -247,7 +247,7 @@ const Sidebar = ({ lightmode, setlightmode }) => {
                             }
 
                             <li className='p-2'>
-                                <Link to="/saved_reports" className={`menus p-2 rounded-3 ${activeLink === 'saved_reports' ? 'active' : ''}`} onClick={() => handleActiveLink('saved_reports')} >
+                                <Link to="/report" className={`menus p-2 rounded-3 ${activeLink === 'report' ? 'active' : ''}`} onClick={() => handleActiveLink('report')} >
                                     <Icon icon="iconoir:page" width="1.5em" height="1.2em" />
                                     <h3 className="font14 menu-text mb-0">Statments</h3>
                                 </Link>

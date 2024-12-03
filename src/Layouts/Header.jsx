@@ -18,7 +18,7 @@ const Header = ({ orderId }) => {
         }
 
 
-        const wsUrl = '';
+        let wsUrl = '';
         wsUrl = role === "super admin"
             ? `ws://auth2.upicollect.com/ws/superadmin/?token=${token}`
             : `wss://auth2.upicollect.com/ws/user/${bio?.id}/?token=${token}`;

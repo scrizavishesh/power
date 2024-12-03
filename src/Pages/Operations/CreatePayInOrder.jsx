@@ -115,7 +115,7 @@ const CreatePayInOrder = () => {
                     setAmount("");
                     toast.success("Order Created Successfully");
                     setShowLoader(false);
-                    // navigate('/payInOperations')
+                    navigate('/payInOperations')
                 }
             } catch (err) {
                 console.log(err);

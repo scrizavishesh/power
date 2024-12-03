@@ -77,7 +77,7 @@ export const getOrdersForAgent = async (id) => {
 
 export const getOrderById = async (id) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
-  var response = await axios.get(`${API_URL}/api/orders/${id}`,);
+  var response = await axios.get(`${API_URL}/api/orders/${id}/`,);
   if (response) {
     return response;
   } else {
@@ -336,7 +336,7 @@ export const getGraphStatics = async (id) => {
 export const perticularPayoutOrder = async (orderId) => {
   axios.defaults.headers.common["Authorization"] = bearerToken;
 
-  var response = await axios.get(`${API_URL}/api/payouts/${orderId}`,);
+  var response = await axios.get(`${API_URL}/api/payouts/${orderId}/`,);
   if (response) {
     return response;
   } else {

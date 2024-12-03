@@ -212,7 +212,7 @@ const SavedReport = () => {
                 <div className="row sticky-top">
                     <div className="col-md-7 col-sm-12 order-md-1 order-sm-2">
                         <p className='greyText font14 fontWeight700'>Hi ,</p>
-                        <p className='font32 fontWeight700'>Welcome to PayIn Operations</p>
+                        <p className='font32 fontWeight700'>Welcome to Saved Reports</p>
                     </div>
                     <div className="col-md-5 col-sm-12 order-md-2 order-sm-1 align-self-center">
                         <div className="row">
