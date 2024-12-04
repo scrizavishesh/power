@@ -10,39 +10,29 @@ const Header = ({ orderId }) => {
     const token = localStorage.getItem('power_token');
     const role = JSON.parse(localStorage.getItem("role"));
     const bio = JSON.parse(localStorage.getItem("assigned_data"));
+    console.log(bio)
+;
+useEffect(() => {
+    
+    const ws = new WebSocket(`wss://auth2.upicollect.com/ws/user/${bio.id}/?token=${token}`);
 
-    useEffect(() => {
-        if (!orderId || !token) {
-            console.error('Order ID or token is missing.');
-            return;
-        }
+    ws.onopen = () => console.log('WebSocket connected.');
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log(data);
+        setNotifications((prev) => [
+            ...prev,
+            { title: "New Notification", message: data.message },
+        ]);
+        setUnreadCount((prev) => prev + 1);
+    };
 
+    ws.onerror = (error) => console.error('WebSocket error:', error.message);
+    ws.onclose = () => console.log('WebSocket disconnected.');
 
-        let wsUrl = '';
-        wsUrl = role === "super admin"
-            ? `ws://auth2.upicollect.com/ws/superadmin/?token=${token}`
-            : `wss://auth2.upicollect.com/ws/user/${bio?.id}/?token=${token}`;
+    return () => ws.close();
+}, [bio?.id, token]);
 
-        const ws = new WebSocket(wsUrl);
-
-        ws.onopen = () => console.log('WebSocket connection established.');
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            console.log(data, "notification");
-            setNotifications((prev) => [
-                ...prev,
-                { title: "New Notification", message: data.message }
-            ]);
-            setUnreadCount((prev) => prev + 1); // Increment unread count
-        };
-
-        ws.onerror = (error) => console.error('WebSocket error:', error.message);
-        ws.onclose = (event) => console.log('WebSocket connection closed:', event.reason);
-
-        return () => {
-            if (ws) ws.close();
-        };
-    }, [orderId, token]);
 
     const handleTogglePopup = () => {
         setHide(!hide);

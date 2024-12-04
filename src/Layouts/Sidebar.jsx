@@ -214,7 +214,7 @@ const Sidebar = ({ lightmode, setlightmode }) => {
                                 </Link>
                             </li>
                             <li className='p-2'>
-                                <Link to="/payInOperations" className={`menus p-2 rounded-3 ${activeLink === 'payInOperations' || activeLink === 'payOutOperations' ? 'active' : ''}`} onClick={() => { handleActiveLink('payInOperations'), setOperationShow }} data-bs-toggle="collapse" data-bs-target="#collapseOperations" >
+                                <Link to="/payInOperations" className={`menus p-2 rounded-3 ${activeLink === 'payInOperations' || activeLink === 'payOutOperations' ? 'active' : ''}`} onClick={() => { handleActiveLink('payInOperations') }} data-bs-toggle="collapse" data-bs-target="#collapseOperations" >
                                     <Icon icon="tabler:chart-bar-popular" width="1.5em" height="1.2em" />
                                     <h3 className="font14 menu-text mb-0">Operations</h3>
                                 </Link>

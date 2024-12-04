@@ -588,7 +588,7 @@ const CreateUsers = () => {
                                             <option value="admin">Admin</option>
                                             <option value="creator">Sub Admin</option>
                                             <option value="agent">Peer</option>
-                                            
+
                                         </select>
 
                                         {selectedRoleIsRequiredError && (
@@ -694,23 +694,16 @@ const CreateUsers = () => {
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label labelGreyText font16">Bank Name</label>
-                                        {/* <input type="text" class="form-control font14" value='Elena'/> */}
-                                        <span className='btn borderRadius10 bg-white d-flex'>
-                                            <select value={bankName}
-                                                onChange={(e) => handleBankName(e.target.value)}
-                                                required
-                                                class="form-select font14 p-0 me-3"
-                                                aria-label="Default select example">
-                                                <option value='' disabled>-- Choose --</option>
-                                                <option selected value="HDFC">HDFC Bank LTD.</option>
-                                                <option value="UNION">UNION Bank LTD.</option>
-                                                <option value="ICICI">ICICI Bank LTD.</option>
-                                                <option value="SBI">SBI Bank LTD.</option>
-                                            </select>
-                                            <span className='borderRadius8 addNewUserBtn p-1'>
-                                                <Icon icon="icon-park-outline:down" width="1.5em" height="1.5em" style={{ color: '#2C6DB5' }} />
-                                            </span>
-                                        </span>
+                                        <input type="text" class="form-control font14"
+                                            value={bankName}
+                                            onChange={(e) => handleBankName(e.target.value)}
+                                            placeholder="Enter Min Amount"
+                                            required />
+                                        {/* {bankName && (
+                                            <div className='text-start mt-2' style={{ color: "red", fontSize: "x-small" }}>
+                                                Min amount is required
+                                            </div>
+                                        )} */}
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label labelGreyText font16">Branch Name</label>

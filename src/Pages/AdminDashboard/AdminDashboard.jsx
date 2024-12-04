@@ -291,7 +291,7 @@ const AdminDashboard = ({ lightMode }) => {
                 </div>
               </div>
             </div>
-            {role === "agent" &&
+            {role === "peer" &&
               (
                 <div className="row">
                   <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 p-3">
@@ -562,7 +562,7 @@ const AdminDashboard = ({ lightMode }) => {
                             <div>
                               <h6 className='dashboardfont'>Total Sub Admin </h6>
                             </div>
-
+                            
                             {adminDetails.map((subAdmin) => (
                               <div key={subAdmin.id} className="col-12 mb-3">
                                 <div className="dropdown">
